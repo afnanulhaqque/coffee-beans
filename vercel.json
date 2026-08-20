@@ -1,8 +1,18 @@
 {
+  "buildCommand": "npm run build",
+  "outputDirectory": "frontend/dist",
   "rewrites": [
     {
-      "source": "/(.*)",
+      "source": "/api/(.*)",
       "destination": "/api/index.py"
+    },
+    {
+      "source": "/uploads/(.*)",
+      "destination": "/api/index.py"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }

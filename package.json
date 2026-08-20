@@ -1,0 +1,10 @@
+{
+  "name": "coffee-beans",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "npm --prefix frontend run dev",
+    "build": "npm --prefix frontend install && npm --prefix frontend run build",
+    "lint": "npm --prefix frontend run lint"
+  }
+}
