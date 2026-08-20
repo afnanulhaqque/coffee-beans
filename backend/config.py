@@ -1,10 +1,12 @@
 import os
+import shutil
 from datetime import timedelta
 from dotenv import load_dotenv
 
 load_dotenv()
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+ROOT_DIR = os.path.abspath(os.path.join(BASE_DIR, '..'))
 
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY', 'coffee-secret-key-super-secure-change-in-prod')
@@ -22,14 +24,28 @@ class Config:
     if _db_url:
         SQLALCHEMY_DATABASE_URI = _db_url
     elif IS_SERVERLESS:
-        import shutil
         tmp_db = os.path.join('/tmp', 'coffee_store.db')
-        src_db = os.path.join(BASE_DIR, 'coffee_store.db')
-        if not os.path.exists(tmp_db) and os.path.exists(src_db):
+        
+        # Check potential source database locations
+        candidate_dbs = [
+            os.path.join(BASE_DIR, 'coffee_store.db'),
+            os.path.join(ROOT_DIR, 'backend', 'coffee_store.db'),
+            os.path.join(ROOT_DIR, 'coffee_store.db')
+        ]
+        
+        src_db = None
+        for cand in candidate_dbs:
+            if os.path.exists(cand) and os.path.getsize(cand) > 10000:
+                src_db = cand
+                break
+
+        if src_db:
             try:
-                shutil.copy2(src_db, tmp_db)
-            except Exception:
-                pass
+                if not os.path.exists(tmp_db) or os.path.getsize(tmp_db) < 10000:
+                    shutil.copy2(src_db, tmp_db)
+            except Exception as e:
+                print(f"Error copying DB to /tmp: {e}")
+
         SQLALCHEMY_DATABASE_URI = f"sqlite:///{tmp_db}"
     else:
         SQLALCHEMY_DATABASE_URI = f"sqlite:///{os.path.join(BASE_DIR, 'coffee_store.db')}"
