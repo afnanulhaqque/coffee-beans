@@ -24,8 +24,8 @@ build/
 
 # Database & Uploads
 *.sqlite
-*.db
-backend/coffee_store.db
+# Allow seeded database for deployment / cold start
+!backend/coffee_store.db
 backend/uploads/
 
 # IDE & Editor

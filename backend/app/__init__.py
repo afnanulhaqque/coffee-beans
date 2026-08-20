@@ -68,12 +68,14 @@ def create_app(config_class=Config):
     def health_check():
         return jsonify({'status': 'ok', 'service': 'Coffee Bean & Tea API', 'version': '1.0.0'}), 200
 
-    # Auto-initialize database tables safely
+    # Auto-initialize database tables and seed if empty safely
     with app.app_context():
         try:
             db.create_all()
+            from app.utils.seeder import seed_data
+            seed_data(db.session)
         except Exception as e:
-            app.logger.warning(f"Database auto-creation warning: {e}")
+            app.logger.warning(f"Database auto-creation/seed warning: {e}")
 
     # Determine dist folder for serving React Frontend
     base_dir = os.path.abspath(os.path.dirname(__file__))

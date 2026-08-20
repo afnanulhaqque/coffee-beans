@@ -22,7 +22,15 @@ class Config:
     if _db_url:
         SQLALCHEMY_DATABASE_URI = _db_url
     elif IS_SERVERLESS:
-        SQLALCHEMY_DATABASE_URI = f"sqlite:///{os.path.join('/tmp', 'coffee_store.db')}"
+        import shutil
+        tmp_db = os.path.join('/tmp', 'coffee_store.db')
+        src_db = os.path.join(BASE_DIR, 'coffee_store.db')
+        if not os.path.exists(tmp_db) and os.path.exists(src_db):
+            try:
+                shutil.copy2(src_db, tmp_db)
+            except Exception:
+                pass
+        SQLALCHEMY_DATABASE_URI = f"sqlite:///{tmp_db}"
     else:
         SQLALCHEMY_DATABASE_URI = f"sqlite:///{os.path.join(BASE_DIR, 'coffee_store.db')}"
 
