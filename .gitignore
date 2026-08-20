@@ -16,7 +16,6 @@ ENV/
 .env.*.local
 
 # Production Build
-dist/
 dist-ssr/
 build/
 *.egg-info/

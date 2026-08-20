@@ -63,9 +63,49 @@ def create_app(config_class=Config):
     app.register_blueprint(cafe_bp)
     app.register_blueprint(settings_bp)
 
-    # Root and Health check endpoints
-    @app.route('/')
-    def root():
+    # Health check endpoint
+    @app.route('/api/health')
+    def health_check():
+        return jsonify({'status': 'ok', 'service': 'Coffee Bean & Tea API', 'version': '1.0.0'}), 200
+
+    # Auto-initialize database tables safely
+    with app.app_context():
+        try:
+            db.create_all()
+        except Exception as e:
+            app.logger.warning(f"Database auto-creation warning: {e}")
+
+    # Determine dist folder for serving React Frontend
+    base_dir = os.path.abspath(os.path.dirname(__file__))
+    dist_dir = os.path.abspath(os.path.join(base_dir, '..', 'dist'))
+    if not os.path.exists(dist_dir):
+        dist_dir = os.path.abspath(os.path.join(base_dir, '..', '..', 'frontend', 'dist'))
+
+    # Serve assets folder
+    @app.route('/assets/<path:filename>')
+    def serve_assets(filename):
+        assets_dir = os.path.join(dist_dir, 'assets')
+        if os.path.exists(os.path.join(assets_dir, filename)):
+            return send_from_directory(assets_dir, filename)
+        return jsonify({'error': 'Asset not found'}), 404
+
+    # Serve React Frontend SPA for all other web routes
+    @app.route('/', defaults={'path': ''})
+    @app.route('/<path:path>')
+    def serve_spa(path):
+        if path.startswith('api') or path.startswith('uploads'):
+            return jsonify({'error': 'The requested resource was not found'}), 404
+
+        # Check if direct static file exists (e.g. vite.svg, favicon.ico, logo.png)
+        target_file = os.path.join(dist_dir, path)
+        if path and os.path.exists(target_file) and not os.path.isdir(target_file):
+            return send_from_directory(dist_dir, path)
+
+        # Serve index.html for SPA routing
+        index_file = os.path.join(dist_dir, 'index.html')
+        if os.path.exists(index_file):
+            return send_from_directory(dist_dir, 'index.html')
+
         return jsonify({
             'service': 'The Coffee Bean & Tea Leaf API',
             'status': 'online',
@@ -80,22 +120,7 @@ def create_app(config_class=Config):
             }
         }), 200
 
-    @app.route('/api/health')
-    def health_check():
-        return jsonify({'status': 'ok', 'service': 'Coffee Bean & Tea API', 'version': '1.0.0'}), 200
-
-    # Auto-initialize database tables safely
-    with app.app_context():
-        try:
-            db.create_all()
-        except Exception as e:
-            app.logger.warning(f"Database auto-creation warning: {e}")
-
     # Global error handlers
-    @app.errorhandler(404)
-    def not_found(e):
-        return jsonify({'error': 'The requested resource was not found'}), 404
-
     @app.errorhandler(500)
     def internal_error(e):
         return jsonify({'error': 'Internal server error'}), 500
