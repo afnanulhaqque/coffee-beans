@@ -7,7 +7,6 @@ from app.models.product import Product
 from app.models.user import User
 from app.models.category import Category
 from app.utils.auth import admin_required
-from scripts.import_products import run_import
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/api/admin')
 
@@ -192,6 +191,7 @@ def trigger_product_import():
     force_update = bool(data.get('force_update', False))
 
     try:
+        from scripts.import_products import run_import
         stats = run_import(force_update=force_update)
         return jsonify({
             'message': 'Product import process finished successfully',

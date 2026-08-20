@@ -7,16 +7,18 @@ def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
 
-    # Ensure upload directory exists
-    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-    os.makedirs(os.path.join(app.config['UPLOAD_FOLDER'], 'products'), exist_ok=True)
-    os.makedirs(os.path.join(app.config['UPLOAD_FOLDER'], 'categories'), exist_ok=True)
-    os.makedirs(os.path.join(app.config['UPLOAD_FOLDER'], 'banners'), exist_ok=True)
-    os.makedirs(os.path.join(app.config['UPLOAD_FOLDER'], 'stores'), exist_ok=True)
-    os.makedirs(os.path.join(app.config['UPLOAD_FOLDER'], 'cafe'), exist_ok=True)
+    # Ensure upload directory exists (safe for read-only / serverless environments)
+    try:
+        os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+        os.makedirs(os.path.join(app.config['UPLOAD_FOLDER'], 'products'), exist_ok=True)
+        os.makedirs(os.path.join(app.config['UPLOAD_FOLDER'], 'categories'), exist_ok=True)
+        os.makedirs(os.path.join(app.config['UPLOAD_FOLDER'], 'banners'), exist_ok=True)
+        os.makedirs(os.path.join(app.config['UPLOAD_FOLDER'], 'stores'), exist_ok=True)
+        os.makedirs(os.path.join(app.config['UPLOAD_FOLDER'], 'cafe'), exist_ok=True)
+    except OSError:
+        pass
 
     # Initialize extensions
-    db.init_init = False
     db.init_app(app)
     migrate.init_app(app, db)
     jwt.init_app(app)
@@ -61,10 +63,33 @@ def create_app(config_class=Config):
     app.register_blueprint(cafe_bp)
     app.register_blueprint(settings_bp)
 
-    # API Root check
+    # Root and Health check endpoints
+    @app.route('/')
+    def root():
+        return jsonify({
+            'service': 'The Coffee Bean & Tea Leaf API',
+            'status': 'online',
+            'endpoints': {
+                'health': '/api/health',
+                'products': '/api/products',
+                'categories': '/api/categories',
+                'stores': '/api/stores',
+                'cafe_menu': '/api/cafe-menu',
+                'banners': '/api/banners',
+                'settings': '/api/settings'
+            }
+        }), 200
+
     @app.route('/api/health')
     def health_check():
         return jsonify({'status': 'ok', 'service': 'Coffee Bean & Tea API', 'version': '1.0.0'}), 200
+
+    # Auto-initialize database tables safely
+    with app.app_context():
+        try:
+            db.create_all()
+        except Exception as e:
+            app.logger.warning(f"Database auto-creation warning: {e}")
 
     # Global error handlers
     @app.errorhandler(404)
