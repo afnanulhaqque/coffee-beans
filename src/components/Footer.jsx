@@ -5,63 +5,66 @@ import logoImg from '../assets/logo.png';
 
 export default function Footer() {
   return (
-    <footer className="bg-[#351B38] text-[#F5F0E8] border-t-2 border-[#4B274F] pt-16 sm:pt-20 pb-12 font-body">
-      {/* Brand Pillars / Value Proposition Highlights */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-14 sm:pb-16 border-b border-white/10">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          
-          <div className="flex items-start gap-4">
-            <div className="w-10 h-10 rounded-md bg-[#4B274F]/80 border border-white/15 flex items-center justify-center shrink-0 text-[#F5F0E8]">
-              <Award className="w-5 h-5" />
+    <>
+      {/* Brand Pillars / Value Proposition Highlights - Distinct Pre-Footer Section */}
+      <section className="bg-[#EAE2D7] border-t border-b border-[#D8CCBD] py-10 sm:py-12 font-body">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            
+            <div className="flex items-start gap-4">
+              <div className="w-11 h-11 rounded-lg bg-[#4B274F] text-[#F5F0E8] flex items-center justify-center shrink-0 shadow-xs">
+                <Award className="w-5 h-5" />
+              </div>
+              <div className="space-y-1">
+                <h4 className="font-semibold text-sm text-[#2A1B17]">Top 1% Arabica</h4>
+                <p className="text-xs text-[#6B4A3A] leading-relaxed font-normal">
+                  Directly sourced high-altitude crops from premier family estates.
+                </p>
+              </div>
             </div>
-            <div className="space-y-1">
-              <h4 className="font-semibold text-sm text-white">Top 1% Arabica</h4>
-              <p className="text-xs text-[#E8DED2]/80 leading-relaxed font-normal">
-                Directly sourced high-altitude crops from premier family estates.
-              </p>
-            </div>
-          </div>
 
-          <div className="flex items-start gap-4">
-            <div className="w-10 h-10 rounded-md bg-[#4B274F]/80 border border-white/15 flex items-center justify-center shrink-0 text-[#F5F0E8]">
-              <Truck className="w-5 h-5" />
+            <div className="flex items-start gap-4">
+              <div className="w-11 h-11 rounded-lg bg-[#4B274F] text-[#F5F0E8] flex items-center justify-center shrink-0 shadow-xs">
+                <Truck className="w-5 h-5" />
+              </div>
+              <div className="space-y-1">
+                <h4 className="font-semibold text-sm text-[#2A1B17]">Nationwide Express</h4>
+                <p className="text-xs text-[#6B4A3A] leading-relaxed font-normal">
+                  Freshly roasted batches delivered fast to your doorstep across Pakistan.
+                </p>
+              </div>
             </div>
-            <div className="space-y-1">
-              <h4 className="font-semibold text-sm text-white">Nationwide Express</h4>
-              <p className="text-xs text-[#E8DED2]/80 leading-relaxed font-normal">
-                Freshly roasted batches delivered fast to your doorstep across Pakistan.
-              </p>
-            </div>
-          </div>
 
-          <div className="flex items-start gap-4">
-            <div className="w-10 h-10 rounded-md bg-[#4B274F]/80 border border-white/15 flex items-center justify-center shrink-0 text-[#F5F0E8]">
-              <RefreshCw className="w-5 h-5" />
+            <div className="flex items-start gap-4">
+              <div className="w-11 h-11 rounded-lg bg-[#4B274F] text-[#F5F0E8] flex items-center justify-center shrink-0 shadow-xs">
+                <RefreshCw className="w-5 h-5" />
+              </div>
+              <div className="space-y-1">
+                <h4 className="font-semibold text-sm text-[#2A1B17]">Freshness Sealed</h4>
+                <p className="text-xs text-[#6B4A3A] leading-relaxed font-normal">
+                  Nitrogen flushed one-way degas valves preserve true origin notes.
+                </p>
+              </div>
             </div>
-            <div className="space-y-1">
-              <h4 className="font-semibold text-sm text-white">Freshness Sealed</h4>
-              <p className="text-xs text-[#E8DED2]/80 leading-relaxed font-normal">
-                Nitrogen flushed one-way degas valves preserve true origin notes.
-              </p>
-            </div>
-          </div>
 
-          <div className="flex items-start gap-4">
-            <div className="w-10 h-10 rounded-md bg-[#4B274F]/80 border border-white/15 flex items-center justify-center shrink-0 text-[#F5F0E8]">
-              <ShieldCheck className="w-5 h-5" />
+            <div className="flex items-start gap-4">
+              <div className="w-11 h-11 rounded-lg bg-[#4B274F] text-[#F5F0E8] flex items-center justify-center shrink-0 shadow-xs">
+                <ShieldCheck className="w-5 h-5" />
+              </div>
+              <div className="space-y-1">
+                <h4 className="font-semibold text-sm text-[#2A1B17]">100% Authentic</h4>
+                <p className="text-xs text-[#6B4A3A] leading-relaxed font-normal">
+                  Verified genuine origins with secure Cash on Delivery tracking.
+                </p>
+              </div>
             </div>
-            <div className="space-y-1">
-              <h4 className="font-semibold text-sm text-white">100% Authentic</h4>
-              <p className="text-xs text-[#E8DED2]/80 leading-relaxed font-normal">
-                Verified genuine origins with secure Cash on Delivery tracking.
-              </p>
-            </div>
-          </div>
 
+          </div>
         </div>
-      </div>
+      </section>
 
       {/* Main Editorial Footer Content */}
+      <footer className="bg-[#351B38] text-[#F5F0E8] pt-14 sm:pt-16 pb-12 font-body">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-8">
           
@@ -192,5 +195,6 @@ export default function Footer() {
         </div>
       </div>
     </footer>
+    </>
   );
 }

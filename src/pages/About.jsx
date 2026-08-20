@@ -60,7 +60,7 @@ export default function About() {
         <span className="text-[10px] tracking-[0.3em] uppercase font-bold text-[#4B274F] block">
           THE PAKISTAN COMMITMENT
         </span>
-        <blockquote className="font-display text-xl sm:text-2xl text-[#351B38] max-w-3xl mx-auto leading-relaxed">
+        <blockquote className="font-quote italic text-xl sm:text-2xl text-[#351B38] max-w-3xl mx-auto leading-relaxed">
           “The Coffee Bean &amp; Tea Leaf Pakistan strives to stay true to the social Californian lifestyle that our brand so joyously signifies. This is why we operate all local Coffee Bean stores ourselves and don’t offer franchises. We wanna make sure that each cup you sip is equally enriched in goodness!”
         </blockquote>
         <div className="pt-2">
