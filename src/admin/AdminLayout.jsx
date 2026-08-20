@@ -16,14 +16,13 @@ import {
   ExternalLink, 
   Menu, 
   X, 
-  ShieldAlert,
-  ChevronRight
+  ShieldAlert
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import logoImg from '../assets/logo.png';
 
 export default function AdminLayout() {
-  const { user, isAdmin, logout, loading } = useAuth();
+  const { isAdmin, logout, loading } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -31,8 +30,8 @@ export default function AdminLayout() {
   // If loading, show clean loader
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#24150F] flex items-center justify-center p-4 text-[#F6F1E9]">
-        <div className="text-xs font-semibold uppercase tracking-widest text-[#B8895B]">
+      <div className="min-h-screen bg-[#351B38] flex items-center justify-center p-4 text-[#F5F0E8] font-body">
+        <div className="text-xs font-semibold uppercase tracking-widest text-[#E8DED2]">
           Verifying administrator session...
         </div>
       </div>
@@ -42,19 +41,19 @@ export default function AdminLayout() {
   // If user is not admin, redirect or show admin login
   if (!isAdmin) {
     return (
-      <div className="min-h-screen bg-[#24150F] flex items-center justify-center p-4 text-[#F6F1E9] font-body">
-        <div className="bg-[#1C1714] rounded-sm border border-[#5A3825] p-8 max-w-md w-full text-center shadow-2xl space-y-4">
+      <div className="min-h-screen bg-[#351B38] flex items-center justify-center p-4 text-[#F5F0E8] font-body">
+        <div className="bg-[#2A1B17] rounded-md border border-[#4B274F] p-8 max-w-md w-full text-center shadow-2xl space-y-4">
           <div className="w-14 h-14 bg-red-950/60 text-red-400 rounded-full flex items-center justify-center mx-auto border border-red-800">
             <ShieldAlert className="w-7 h-7" />
           </div>
           <h2 className="font-display text-2xl font-bold text-white">Administrator Access Required</h2>
-          <p className="text-xs text-[#EDE4D8]/80 font-normal">
+          <p className="text-xs text-[#E8DED2]/80 font-normal">
             You must be signed in with authorized administrator credentials to access the store management system.
           </p>
           <div className="pt-2 flex gap-3 justify-center">
             <Link
               to="/admin/login"
-              className="px-6 py-2.5 bg-[#B8895B] hover:bg-[#8C6239] text-[#24150F] text-xs font-bold uppercase tracking-wider rounded-sm transition-colors"
+              className="px-6 py-2.5 bg-[#4B274F] hover:bg-[#351B38] text-white text-xs font-bold uppercase tracking-wider rounded-md transition-colors"
             >
               Admin Sign In
             </Link>
@@ -111,25 +110,25 @@ export default function AdminLayout() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F7F7F5] flex flex-col lg:flex-row text-[#1C1714]">
+    <div className="min-h-screen bg-[#F5F0E8] flex flex-col lg:flex-row text-[#2A1B17] font-body">
       
       {/* Mobile Top Bar */}
-      <div className="lg:hidden bg-[#24150F] text-white p-4 flex items-center justify-between sticky top-0 z-40">
+      <div className="lg:hidden bg-[#351B38] text-white p-4 flex items-center justify-between sticky top-0 z-40">
         <div className="flex items-center gap-3">
           <img src={logoImg} alt="The Coffee Bean" className="w-8 h-8 object-contain bg-white rounded-full p-0.5" />
-          <span className="font-serif-luxury font-bold text-sm">Coffee Bean Management</span>
+          <span className="font-display font-bold text-sm">Coffee Bean Management</span>
         </div>
         <button
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-          className="p-1.5 rounded-sm bg-white/10 text-white"
+          className="p-1.5 rounded-md bg-white/10 text-white"
         >
           {isSidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>
       </div>
 
-      {/* Sidebar Navigation (Left - Deep Espresso #24150F) */}
+      {/* Sidebar Navigation: Deep Purple #351B38 */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-[#24150F] text-white flex flex-col justify-between transition-transform duration-300 ease-in-out lg:static lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-[#351B38] text-white flex flex-col justify-between transition-transform duration-300 ease-in-out lg:static lg:translate-x-0 ${
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
@@ -143,15 +142,15 @@ export default function AdminLayout() {
                 className="w-10 h-10 object-contain bg-white rounded-full p-0.5 shadow-sm shrink-0"
               />
               <div>
-                <span className="font-serif-luxury font-bold text-sm text-white block leading-tight">
+                <span className="font-display font-bold text-sm text-white block leading-tight">
                   The Coffee Bean
                 </span>
-                <span className="text-[9px] text-[#B8895B] font-bold tracking-widest uppercase">
+                <span className="text-[9px] text-[#E8DED2] font-bold tracking-widest uppercase">
                   Admin Workspace
                 </span>
               </div>
             </div>
-            <button onClick={() => setIsSidebarOpen(false)} className="lg:hidden text-gray-400">
+            <button onClick={() => setIsSidebarOpen(false)} className="lg:hidden text-gray-300">
               <X className="w-5 h-5" />
             </button>
           </div>
@@ -160,7 +159,7 @@ export default function AdminLayout() {
           <div className="p-4 space-y-6 overflow-y-auto max-h-[calc(100vh-160px)]">
             {navGroups.map((grp, idx) => (
               <div key={idx} className="space-y-1">
-                <span className="text-[9px] uppercase tracking-[0.2em] font-bold text-[#B8895B] px-3 block mb-1">
+                <span className="text-[9px] uppercase tracking-[0.2em] font-bold text-[#E8DED2]/80 px-3 block mb-1">
                   {grp.group}
                 </span>
                 {grp.items.map((item) => {
@@ -171,13 +170,13 @@ export default function AdminLayout() {
                       key={item.path}
                       to={item.path}
                       onClick={() => setIsSidebarOpen(false)}
-                      className={`flex items-center gap-3 px-3.5 py-2.5 rounded-sm text-xs font-semibold transition-all ${
+                      className={`flex items-center gap-3 px-3.5 py-2.5 rounded-md text-xs font-semibold transition-all ${
                         active
-                          ? 'bg-[#B8895B] text-white font-bold shadow-xs'
-                          : 'text-[#EDE4D8]/80 hover:bg-white/5 hover:text-white'
+                          ? 'bg-[#4B274F] text-white font-bold shadow-xs'
+                          : 'text-[#E8DED2]/80 hover:bg-white/10 hover:text-white'
                       }`}
                     >
-                      <Icon className={`w-4 h-4 ${active ? 'text-white' : 'text-[#B8895B]'}`} />
+                      <Icon className={`w-4 h-4 ${active ? 'text-white' : 'text-[#E8DED2]'}`} />
                       <span>{item.label}</span>
                     </Link>
                   );
@@ -188,14 +187,14 @@ export default function AdminLayout() {
         </div>
 
         {/* Sidebar Footer */}
-        <div className="p-4 border-t border-white/10 space-y-2 bg-[#1A0E0A]">
+        <div className="p-4 border-t border-white/10 space-y-2 bg-[#2A1B17]/60">
           <Link
             to="/"
             target="_blank"
-            className="flex items-center justify-between px-3 py-2 text-xs text-[#EDE4D8] hover:text-white rounded-sm hover:bg-white/5 transition-colors"
+            className="flex items-center justify-between px-3 py-2 text-xs text-[#E8DED2] hover:text-white rounded-md hover:bg-white/10 transition-colors"
           >
             <span className="flex items-center gap-2">
-              <ExternalLink className="w-3.5 h-3.5 text-[#B8895B]" /> View Storefront
+              <ExternalLink className="w-3.5 h-3.5 text-[#E8DED2]" /> View Storefront
             </span>
           </Link>
 
@@ -204,15 +203,15 @@ export default function AdminLayout() {
               logout();
               navigate('/admin/login');
             }}
-            className="w-full flex items-center gap-2 px-3 py-2 text-xs font-bold text-red-400 hover:text-red-300 rounded-sm hover:bg-white/5 transition-colors"
+            className="w-full flex items-center gap-2 px-3 py-2 text-xs font-bold text-red-300 hover:text-red-200 rounded-md hover:bg-white/10 transition-colors"
           >
             <LogOut className="w-3.5 h-3.5" /> Sign Out
           </button>
         </div>
       </aside>
 
-      {/* Main Content Area (Clean #F7F7F5 background) */}
-      <main className="flex-1 p-6 sm:p-8 lg:p-10 max-w-7xl w-full overflow-y-auto">
+      {/* Main Content Area */}
+      <main className="flex-1 p-6 sm:p-8 lg:p-10 max-w-7xl w-full overflow-y-auto bg-[#F5F0E8]">
         <Outlet />
       </main>
 

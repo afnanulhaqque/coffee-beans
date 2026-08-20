@@ -1,205 +1,115 @@
-import React, { useState, useEffect } from 'react';
-import { useLocation, Link } from 'react-router-dom';
-import { Coffee, MapPin, Sparkles, ArrowRight, Utensils, GlassWater } from 'lucide-react';
-import api from '../services/api';
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { Coffee, UtensilsCrossed, ArrowRight, Sparkles } from 'lucide-react';
 
 export default function CafeMenu() {
-  const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedSection, setSelectedSection] = useState('All');
-  const location = useLocation();
-
-  useEffect(() => {
-    const fetchMenu = async () => {
-      setLoading(true);
-      try {
-        const res = await api.get('/cafe-menu');
-        const cats = res.data.categories || [];
-        setCategories(cats);
-      } catch (err) {
-        console.error('Failed to load cafe menu', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchMenu();
-  }, []);
-
-  // Hash listener for #beverages and #food
-  useEffect(() => {
-    if (location.hash === '#beverages') {
-      setSelectedSection('Beverages');
-      const el = document.getElementById('beverages');
-      if (el) el.scrollIntoView({ behavior: 'smooth' });
-    } else if (location.hash === '#food') {
-      setSelectedSection('Food');
-      const el = document.getElementById('food');
-      if (el) el.scrollIntoView({ behavior: 'smooth' });
-    } else {
-      setSelectedSection('All');
-    }
-  }, [location.hash]);
-
-  const beverageCategories = categories.filter((c) => 
-    ['brewed', 'espresso', 'ice-blended', 'tea-latte', 'non-coffee'].includes(c.slug) ||
-    c.name.toLowerCase().includes('coffee') ||
-    c.name.toLowerCase().includes('tea') ||
-    c.name.toLowerCase().includes('ice blended') ||
-    c.name.toLowerCase().includes('espresso')
-  );
-
-  const foodCategories = categories.filter((c) => 
-    !['brewed', 'espresso', 'ice-blended', 'tea-latte', 'non-coffee'].includes(c.slug) &&
-    !c.name.toLowerCase().includes('coffee') &&
-    !c.name.toLowerCase().includes('tea') &&
-    !c.name.toLowerCase().includes('ice blended') &&
-    !c.name.toLowerCase().includes('espresso')
-  );
-
-  const filterSections = ['All', 'Beverages', 'Food', ...categories.map((c) => c.name)];
-
-  const displayedCategories = selectedSection === 'All'
-    ? categories
-    : selectedSection === 'Beverages'
-      ? beverageCategories
-      : selectedSection === 'Food'
-        ? foodCategories
-        : categories.filter((c) => c.name === selectedSection);
-
   return (
-    <div className="pt-28 sm:pt-36 pb-24 px-6 sm:px-8 max-w-7xl mx-auto space-y-12 font-body text-[#1C1714]">
+    <div className="pt-28 sm:pt-36 pb-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 text-[#2A1B17] font-body">
       
-      {/* Editorial Header */}
-      <div className="text-center max-w-2xl mx-auto space-y-3">
-        <span className="text-[10px] tracking-[0.3em] uppercase font-medium text-[#B8895B] block">
-          IN-STORE DINING &amp; BEVERAGES
-        </span>
-        <h1 className="font-display text-4xl sm:text-5xl text-[#24150F] tracking-tight">
-          The Cafe Menu
+      {/* Header */}
+      <div className="text-center space-y-4 max-w-3xl mx-auto">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-[#E8DED2] rounded-full text-[#4B274F] text-[10px] uppercase tracking-widest font-bold shadow-xs">
+          <Sparkles className="w-3.5 h-3.5" /> Handcrafted &amp; Made to Order
+        </div>
+        <h1 className="font-display text-4xl sm:text-5xl font-bold text-[#351B38]">
+          Cafe Menu
         </h1>
-        <p className="text-xs sm:text-sm text-[#756A62] font-normal leading-relaxed">
-          Crafted fresh by our baristas and culinary team. Handcrafted espresso beverages, our world-famous Original Ice Blended® drinks, whole leaf tea lattes, and gourmet kitchen favorites.
+        <p className="text-xs sm:text-sm text-[#6B4A3A] leading-relaxed">
+          Welcome to The Coffee Bean &amp; Tea Leaf Pakistan cafe experience. Discover our handcrafted specialty beverages and freshly prepared artisan food.
         </p>
       </div>
 
-      {/* Main Section Filter Tabs (All / Beverages / Food) */}
-      <div className="flex items-center justify-center gap-2 overflow-x-auto pb-3 border-b border-[#EDE4D8]">
-        {['All', 'Beverages', 'Food'].map((sec) => (
-          <button
-            key={sec}
-            onClick={() => setSelectedSection(sec)}
-            className={`px-5 py-2.5 text-xs uppercase tracking-wider font-semibold rounded-sm shrink-0 transition-colors ${
-              selectedSection === sec
-                ? 'bg-[#24150F] text-[#F6F1E9]'
-                : 'bg-white border border-[#EDE4D8] text-[#5A3825] hover:bg-[#EDE4D8]'
-            }`}
-          >
-            {sec}
-          </button>
-        ))}
-      </div>
-
-      {/* Categories Sections */}
-      {loading ? (
-        <div className="p-20 text-center text-xs font-semibold text-[#756A62]">Loading cafe menu...</div>
-      ) : (
-        <div className="space-y-16">
-          <div id="beverages" />
-          <div id="food" />
-
-          {displayedCategories.map((cat) => (
-            <div key={cat.id} className="space-y-8">
-              
-              <div className="border-b border-[#EDE4D8] pb-4 flex items-center justify-between">
-                <div>
-                  <span className="text-[9px] uppercase tracking-widest font-medium text-[#B8895B] block">
-                    CATEGORY
-                  </span>
-                  <h2 className="font-display text-2xl sm:text-3xl text-[#24150F]">
-                    {cat.name}
-                  </h2>
-                </div>
-                {cat.description && (
-                  <p className="hidden sm:block text-xs text-[#756A62] max-w-xs text-right font-normal">
-                    {cat.description}
-                  </p>
-                )}
-              </div>
-
-              {/* Items Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {(cat.items || []).map((item) => (
-                  <div
-                    key={item.id}
-                    className="p-5 bg-white border border-[#EDE4D8] rounded-sm flex flex-col justify-between space-y-4 hover:border-[#B8895B] transition-colors shadow-xs group"
-                  >
-                    {item.image && (
-                      <div className="aspect-16/10 bg-[#24150F] rounded-xs overflow-hidden">
-                        <img
-                          src={item.image}
-                          alt={item.name}
-                          className="w-full h-full object-cover group-hover:scale-103 transition-transform duration-500"
-                        />
-                      </div>
-                    )}
-
-                    <div className="space-y-2 flex-1 flex flex-col justify-between">
-                      <div>
-                        <div className="flex items-start justify-between gap-2">
-                          <h3 className="font-semibold text-base text-[#24150F]">
-                            {item.name}
-                          </h3>
-                          {item.is_popular && (
-                            <span className="px-2 py-0.5 bg-[#EDE4D8] text-[#5A3825] text-[9px] uppercase tracking-wider font-semibold rounded-xs shrink-0">
-                              Popular
-                            </span>
-                          )}
-                        </div>
-
-                        {item.description && (
-                          <p className="text-xs text-[#756A62] leading-relaxed mt-1 font-normal">
-                            {item.description}
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="flex items-center justify-between pt-3 border-t border-[#EDE4D8] text-xs">
-                        <span className="font-bold text-sm text-[#24150F]">
-                          Rs. {item.price?.toLocaleString()}
-                        </span>
-                        {item.calories && (
-                          <span className="text-[11px] font-mono text-[#756A62]">
-                            {item.calories}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
+      {/* Two Large Hero Category Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 max-w-5xl mx-auto pt-4">
+        
+        {/* 1. BEVERAGE CARD */}
+        <div className="bg-white border border-[#E8DED2] rounded-lg overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group flex flex-col justify-between">
+          <Link to="/beverage" className="block overflow-hidden relative aspect-4/3 bg-[#F5F0E8]/50">
+            <img
+              src="/Coffee-Bean-banners-website_homepage_Coffee-Shop_1.jpg"
+              alt="Handcrafted Beverages"
+              className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+              onError={(e) => {
+                e.target.src = '/products/beverages/the-original-mocha-ice-blended-drink.jpg';
+              }}
+            />
+            <div className="absolute inset-0 bg-linear-to-t from-[#2A1B17]/40 via-transparent to-transparent" />
+            <div className="absolute top-4 left-4">
+              <span className="px-3 py-1 bg-[#4B274F] text-white text-[10px] uppercase tracking-widest font-bold rounded-xs flex items-center gap-1.5 shadow-xs">
+                <Coffee className="w-3.5 h-3.5" /> 45 Signature Drinks
+              </span>
             </div>
-          ))}
-        </div>
-      )}
+          </Link>
 
-      {/* Dine In Atmosphere Callout */}
-      <div className="p-8 sm:p-12 bg-[#EDE4D8]/80 border border-[#EDE4D8] text-[#1C1714] rounded-sm flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xs">
-        <div className="space-y-2 text-center sm:text-left">
-          <h3 className="font-display text-2xl text-[#24150F]">
-            Freshly Prepared For You In-Store
-          </h3>
-          <p className="text-xs sm:text-sm text-[#5A3825] max-w-xl font-normal leading-relaxed">
-            All beverages and meals are handcrafted upon order using freshly roasted beans, whole leaf teas, and fresh ingredients.
-          </p>
+          <div className="p-6 sm:p-8 space-y-4 flex flex-col justify-between flex-1">
+            <div className="space-y-2">
+              <span className="text-[10px] uppercase tracking-[0.25em] font-bold text-[#4B274F] block">
+                SPECIALTY DRINKS &amp; ESPRESSO
+              </span>
+              <h2 className="font-display text-2xl sm:text-3xl font-bold text-[#351B38] group-hover:text-[#4B274F] transition-colors">
+                Beverage
+              </h2>
+              <p className="text-xs sm:text-sm text-[#6B4A3A] leading-relaxed">
+                Enjoy our world-famous Original Ice Blended® drinks, single-origin espresso pulls, whole leaf brewed teas, and creamy tea lattes crafted by master baristas.
+              </p>
+            </div>
+
+            <div className="pt-4 border-t border-[#E8DED2]">
+              <Link
+                to="/beverage"
+                className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-6 py-3.5 bg-[#4B274F] hover:bg-[#351B38] text-white text-xs font-bold uppercase tracking-[0.15em] rounded-md transition-colors shadow-xs"
+              >
+                <span>Read More</span>
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+          </div>
         </div>
-        <Link
-          to="/store-locator/"
-          className="px-6 py-3.5 bg-[#24150F] hover:bg-[#5A3825] text-[#F6F1E9] text-xs font-semibold uppercase tracking-[0.2em] rounded-sm transition-luxury shrink-0 shadow-xs flex items-center gap-2"
-        >
-          Find Nearest Store <ArrowRight className="w-4 h-4 text-[#B8895B]" />
-        </Link>
+
+        {/* 2. FOOD CARD */}
+        <div className="bg-white border border-[#E8DED2] rounded-lg overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group flex flex-col justify-between">
+          <Link to="/food" className="block overflow-hidden relative aspect-4/3 bg-[#F5F0E8]/50">
+            <img
+              src="/Coffee-Bean-banners-website_homepage_Coffee-Shop_2.jpg"
+              alt="Gourmet Cafe Food"
+              className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+              onError={(e) => {
+                e.target.src = '/products/food/mexican-bbq-chicken-steak.png';
+              }}
+            />
+            <div className="absolute inset-0 bg-linear-to-t from-[#2A1B17]/40 via-transparent to-transparent" />
+            <div className="absolute top-4 left-4">
+              <span className="px-3 py-1 bg-[#4B274F] text-white text-[10px] uppercase tracking-widest font-bold rounded-xs flex items-center gap-1.5 shadow-xs">
+                <UtensilsCrossed className="w-3.5 h-3.5" /> 29 Gourmet Dishes
+              </span>
+            </div>
+          </Link>
+
+          <div className="p-6 sm:p-8 space-y-4 flex flex-col justify-between flex-1">
+            <div className="space-y-2">
+              <span className="text-[10px] uppercase tracking-[0.25em] font-bold text-[#4B274F] block">
+                FRESHLY PREPARED CAFE KITCHEN
+              </span>
+              <h2 className="font-display text-2xl sm:text-3xl font-bold text-[#351B38] group-hover:text-[#4B274F] transition-colors">
+                Food
+              </h2>
+              <p className="text-xs sm:text-sm text-[#6B4A3A] leading-relaxed">
+                From wholesome all-day breakfasts and toasted club sandwiches to flame-grilled chicken steaks, gourmet pastas, and stone-baked thin crust pizzas.
+              </p>
+            </div>
+
+            <div className="pt-4 border-t border-[#E8DED2]">
+              <Link
+                to="/food"
+                className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-6 py-3.5 bg-[#4B274F] hover:bg-[#351B38] text-white text-xs font-bold uppercase tracking-[0.15em] rounded-md transition-colors shadow-xs"
+              >
+                <span>Read More</span>
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+          </div>
+        </div>
+
       </div>
 
     </div>

@@ -10,10 +10,14 @@ categories_bp = Blueprint('categories', __name__, url_prefix='/api/categories')
 def get_categories():
     include_inactive = request.args.get('all', 'false').lower() == 'true'
     flat = request.args.get('flat', 'false').lower() == 'true'
+    type_param = request.args.get('type', '').strip().lower()
 
     query = Category.query
     if not include_inactive:
         query = query.filter_by(is_active=True)
+
+    if type_param:
+        query = query.filter(Category.product_type == type_param)
 
     query = query.order_by(Category.sort_order.asc(), Category.name.asc())
 
@@ -21,7 +25,12 @@ def get_categories():
         categories = query.all()
         return jsonify({'categories': [c.to_dict(include_children=False) for c in categories]}), 200
 
-    # Hierarchical tree: only top-level (parent_id is None)
+    # Hierarchical tree: only top-level (parent_id is None) or if filtering by type, show children of that type
+    if type_param:
+        # If type specified, return relevant categories
+        categories = query.all()
+        return jsonify({'categories': [c.to_dict(include_children=True) for c in categories]}), 200
+
     top_level = query.filter(Category.parent_id == None).all()
     return jsonify({'categories': [c.to_dict(include_children=True) for c in top_level]}), 200
 
@@ -61,14 +70,13 @@ def create_category():
     if existing:
         slug = f"{slug}-{Category.query.count() + 1}"
 
-    parent_id = int(data['parent_id']) if data.get('parent_id') else None
-
     category = Category(
         name=name,
         slug=slug,
+        product_type=data.get('product_type', 'coffee').strip().lower(),
         description=data.get('description', ''),
         image=data.get('image', ''),
-        parent_id=parent_id,
+        parent_id=int(data['parent_id']) if data.get('parent_id') else None,
         is_active=bool(data.get('is_active', True)),
         sort_order=int(data.get('sort_order', 0))
     )
@@ -78,7 +86,7 @@ def create_category():
 
     return jsonify({
         'message': 'Category created successfully',
-        'category': category.to_dict(include_children=False)
+        'category': category.to_dict()
     }), 201
 
 
@@ -90,6 +98,7 @@ def update_category(category_id):
         return jsonify({'error': 'Category not found'}), 404
 
     data = request.get_json() or {}
+
     if 'name' in data:
         category.name = data['name'].strip()
     if 'slug' in data and data['slug'].strip():
@@ -97,6 +106,8 @@ def update_category(category_id):
         existing = Category.query.filter(Category.slug == new_slug, Category.id != category_id).first()
         if not existing:
             category.slug = new_slug
+    if 'product_type' in data:
+        category.product_type = data['product_type'].strip().lower()
     if 'description' in data:
         category.description = data['description']
     if 'image' in data:
@@ -109,9 +120,10 @@ def update_category(category_id):
         category.sort_order = int(data['sort_order'])
 
     db.session.commit()
+
     return jsonify({
         'message': 'Category updated successfully',
-        'category': category.to_dict(include_children=False)
+        'category': category.to_dict()
     }), 200
 
 
@@ -122,6 +134,7 @@ def delete_category(category_id):
     if not category:
         return jsonify({'error': 'Category not found'}), 404
 
-    category.is_active = False
+    db.session.delete(category)
     db.session.commit()
-    return jsonify({'message': 'Category deactivated successfully'}), 200
+
+    return jsonify({'message': 'Category deleted successfully'}), 200

@@ -35,8 +35,8 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="min-h-screen bg-[#24150F] flex items-center justify-center p-4 sm:p-6 font-body text-[#F6F1E9]">
-      <div className="w-full max-w-md bg-[#1C1714] border border-[#5A3825] rounded-sm p-8 sm:p-10 shadow-2xl space-y-6">
+    <div className="min-h-screen bg-[#351B38] flex items-center justify-center p-4 sm:p-6 font-body text-[#F5F0E8]">
+      <div className="w-full max-w-md bg-[#2A1B17] border border-[#4B274F] rounded-md p-8 sm:p-10 shadow-2xl space-y-6">
         
         {/* Brand Header */}
         <div className="text-center space-y-3">
@@ -49,14 +49,14 @@ export default function AdminLogin() {
             <h1 className="font-display text-2xl sm:text-3xl text-white tracking-tight">
               Admin Portal
             </h1>
-            <span className="text-[10px] uppercase tracking-[0.25em] text-[#B8895B] font-semibold">
+            <span className="text-[10px] uppercase tracking-[0.25em] text-[#E8DED2] font-semibold">
               The Coffee Bean &amp; Tea Leaf
             </span>
           </div>
         </div>
 
         {error && (
-          <div className="p-4 bg-red-950/60 border border-red-800 text-red-200 text-xs rounded-sm flex items-start gap-2.5 font-normal">
+          <div className="p-4 bg-red-950/60 border border-red-800 text-red-200 text-xs rounded-md flex items-start gap-2.5 font-normal">
             <AlertCircle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
             <span>{error}</span>
           </div>
@@ -64,35 +64,35 @@ export default function AdminLogin() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold text-[#EDE4D8] mb-1">
+            <label className="block text-xs font-semibold text-[#E8DED2] mb-1">
               Administrator Email
             </label>
             <div className="relative">
-              <Mail className="w-4 h-4 text-[#B8895B] absolute left-3 top-3.5" />
+              <Mail className="w-4 h-4 text-[#E8DED2] absolute left-3 top-3.5" />
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 placeholder="admin@coffeebean.pk"
-                className="w-full bg-[#24150F] border border-[#5A3825] rounded-sm pl-10 pr-3.5 py-3 text-xs text-white placeholder:text-[#756A62] focus:outline-hidden focus:border-[#B8895B]"
+                className="w-full bg-[#351B38] border border-[#4B274F] rounded-md pl-10 pr-3.5 py-3 text-xs text-white placeholder:text-[#E8DED2]/50 focus:outline-none focus:border-[#4B274F]"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#EDE4D8] mb-1">
+            <label className="block text-xs font-semibold text-[#E8DED2] mb-1">
               Password
             </label>
             <div className="relative">
-              <Lock className="w-4 h-4 text-[#B8895B] absolute left-3 top-3.5" />
+              <Lock className="w-4 h-4 text-[#E8DED2] absolute left-3 top-3.5" />
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 placeholder="••••••••"
-                className="w-full bg-[#24150F] border border-[#5A3825] rounded-sm pl-10 pr-3.5 py-3 text-xs text-white placeholder:text-[#756A62] focus:outline-hidden focus:border-[#B8895B]"
+                className="w-full bg-[#351B38] border border-[#4B274F] rounded-md pl-10 pr-3.5 py-3 text-xs text-white placeholder:text-[#E8DED2]/50 focus:outline-none focus:border-[#4B274F]"
               />
             </div>
           </div>
@@ -100,7 +100,7 @@ export default function AdminLogin() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3.5 bg-[#B8895B] hover:bg-[#8C6239] text-[#24150F] hover:text-white text-xs font-bold uppercase tracking-[0.2em] rounded-sm transition-colors shadow-md flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 mt-2"
+            className="w-full py-3.5 bg-[#4B274F] hover:bg-[#351B38] text-white text-xs font-bold uppercase tracking-[0.2em] rounded-md transition-colors shadow-md flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 mt-2"
           >
             {loading ? (
               'Authenticating...'
@@ -112,7 +112,7 @@ export default function AdminLogin() {
           </button>
         </form>
 
-        <div className="text-[11px] text-[#756A62] text-center pt-2 border-t border-[#5A3825]/40 font-normal">
+        <div className="text-[11px] text-[#E8DED2]/70 text-center pt-2 border-t border-white/10 font-normal">
           Authorized personnel only. Sessions are encrypted and monitored.
         </div>
 

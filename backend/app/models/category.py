@@ -7,6 +7,7 @@ class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     slug = db.Column(db.String(120), unique=True, nullable=False, index=True)
+    product_type = db.Column(db.String(50), default='coffee', nullable=False)  # 'coffee', 'tea', 'cake'
     description = db.Column(db.Text, nullable=True)
     image = db.Column(db.String(255), nullable=True)
     parent_id = db.Column(db.Integer, db.ForeignKey('categories.id'), nullable=True)
@@ -16,13 +17,14 @@ class Category(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
     parent = db.relationship('Category', remote_side=[id], backref=db.backref('children', lazy='joined', order_by='Category.sort_order'))
-    products = db.relationship('Product', backref='category', lazy='dynamic')
+    products = db.relationship('Product', foreign_keys='Product.category_id', backref='category', lazy='dynamic')
 
     def to_dict(self, include_children=True):
         data = {
             'id': self.id,
             'name': self.name,
             'slug': self.slug,
+            'product_type': self.product_type,
             'description': self.description,
             'image': self.image,
             'parent_id': self.parent_id,

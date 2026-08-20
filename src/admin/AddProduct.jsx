@@ -1,24 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, Save, Upload, Plus, Trash2, Image as ImageIcon } from 'lucide-react';
+import { ArrowLeft, Save, Plus, Trash2, Upload, X } from 'lucide-react';
 import api from '../services/api';
 
 export default function AddProduct() {
   const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
 
   const [form, setForm] = useState({
     name: '',
+    product_type: 'coffee', // 'coffee', 'tea', 'cake'
+    pack_size: '8oz',
     short_description: '',
     description: '',
+    flavor_profile: '',
     category_id: '',
+    subcategory_id: '',
     sku: '',
     price: '',
     sale_price: '',
     stock_quantity: 50,
-    roast_level: 'Medium',
+    availability: 'In Stock',
+    roast_level: 'Medium Roast',
     origin: '',
     tags: '',
     image: '',
@@ -26,6 +32,18 @@ export default function AddProduct() {
     is_active: true,
     is_featured: false,
     is_best_seller: false,
+    // Tea specific
+    tea_type: '',
+    caffeine: '',
+    ingredients: '',
+    brewing_instructions: '',
+    // Cake specific
+    cake_type: '',
+    flavor: '',
+    size: '',
+    weight: '',
+    serving_size: 'Whole Cake / 8-10 Slices',
+    allergen_information: '',
   });
 
   const [newGalleryUrl, setNewGalleryUrl] = useState('');
@@ -33,17 +51,18 @@ export default function AddProduct() {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await api.get('/categories');
-        setCategories(res.data.categories || []);
-        if (res.data.categories?.length > 0) {
-          setForm((f) => ({ ...f, category_id: res.data.categories[0].id }));
+        const res = await api.get(`/categories?type=${form.product_type}`);
+        const cats = res.data.categories || [];
+        setCategories(cats);
+        if (cats.length > 0) {
+          setForm((f) => ({ ...f, category_id: cats[0].id }));
         }
       } catch (err) {
         console.error(err);
       }
     };
     fetchCategories();
-  }, []);
+  }, [form.product_type]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -53,29 +72,31 @@ export default function AddProduct() {
     }));
   };
 
-  const handleAddGalleryImage = () => {
-    if (newGalleryUrl.trim()) {
-      setForm((f) => ({
-        ...f,
-        additional_images: [...f.additional_images, newGalleryUrl.trim()],
-      }));
-      setNewGalleryUrl('');
-    }
-  };
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
 
-  const handleRemoveGalleryImage = (idx) => {
-    setForm((f) => ({
-      ...f,
-      additional_images: f.additional_images.filter((_, i) => i !== idx),
-    }));
+    setUploading(true);
+    const formData = new FormData();
+    formData.append('file', file);
+    try {
+      const res = await api.post('/products/upload-image', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      setForm((prev) => ({ ...prev, image: res.data.url }));
+    } catch (err) {
+      setError(err.response?.data?.error || 'Failed to upload image.');
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
-    if (!form.name.trim() || !form.price) {
-      setError('Product Name and Price are required.');
+    if (!form.name.trim()) {
+      setError('Product Name is required.');
       return;
     }
 
@@ -83,10 +104,11 @@ export default function AddProduct() {
     try {
       const payload = {
         ...form,
-        price: parseFloat(form.price),
+        price: form.price !== '' && form.price !== null ? parseFloat(form.price) : null,
         sale_price: form.sale_price ? parseFloat(form.sale_price) : null,
         stock_quantity: parseInt(form.stock_quantity, 10) || 0,
         category_id: parseInt(form.category_id, 10) || null,
+        subcategory_id: parseInt(form.subcategory_id, 10) || null,
       };
 
       await api.post('/products', payload);
@@ -99,66 +121,71 @@ export default function AddProduct() {
   };
 
   return (
-    <div className="space-y-6 text-[#1C1714]">
+    <div className="max-w-4xl mx-auto space-y-8 font-body text-[#2A1B17] pb-16">
       
-      {/* Top Header */}
-      <div className="flex items-center justify-between border-b border-[#E5E5E0] pb-6">
-        <div className="flex items-center gap-3">
-          <Link
-            to="/admin/products"
-            className="p-2 border border-[#E5E5E0] bg-white rounded-sm text-[#24150F] hover:bg-[#F7F7F5]"
-          >
-            <ArrowLeft className="w-4 h-4" />
-          </Link>
-          <div>
-            <h1 className="font-serif-luxury text-2xl sm:text-3xl font-bold text-[#24150F]">
-              Add New Product
-            </h1>
-            <p className="text-xs text-[#756A62]">Create a new catalog item with images and roast metadata.</p>
-          </div>
-        </div>
+      {/* Top Breadcrumb */}
+      <div className="flex items-center justify-between border-b border-[#E8DED2] pb-4">
+        <Link
+          to="/admin/products"
+          className="text-xs font-bold text-[#4B274F] hover:underline flex items-center gap-1.5"
+        >
+          <ArrowLeft className="w-4 h-4" /> Back to Catalog
+        </Link>
+        <span className="text-xs text-[#6B4A3A]">Add New Catalog Item</span>
       </div>
 
       {error && (
-        <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-sm">
+        <div className="p-4 bg-red-50 border border-red-200 text-red-700 text-xs rounded-md">
           {error}
         </div>
       )}
 
-      {/* 2-Column Form */}
-      <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <form onSubmit={handleSubmit} className="space-y-8">
         
-        {/* Left Column: General & Pricing (Span 8) */}
-        <div className="lg:col-span-8 space-y-6">
-          
-          {/* GENERAL INFORMATION */}
-          <div className="bg-white border border-[#E5E5E0] rounded-sm p-6 space-y-4 shadow-xs">
-            <h3 className="font-serif-luxury font-bold text-base text-[#24150F] border-b border-[#E5E5E0] pb-3">
-              General Information
-            </h3>
+        {/* Section 1: General Info */}
+        <div className="bg-white p-6 sm:p-8 rounded-md border border-[#E8DED2] shadow-xs space-y-4">
+          <h2 className="font-display text-xl font-bold text-[#351B38] border-b border-[#E8DED2] pb-3">
+            1. Product Classification &amp; Title
+          </h2>
 
-            <div>
-              <label className="block text-xs font-bold text-[#24150F] mb-1">Product Title *</label>
-              <input
-                type="text"
-                name="name"
-                value={form.name}
-                onChange={handleChange}
-                required
-                placeholder="e.g. Costa Rica La Minita Whole Bean (8oz)"
-                className="w-full bg-[#F7F7F5] border border-[#E5E5E0] rounded-sm px-3.5 py-2.5 text-xs text-[#24150F] focus:outline-none focus:border-[#24150F]"
-              />
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-xs font-bold text-[#2A1B17] mb-1">Product Type *</label>
+                <select
+                  name="product_type"
+                  value={form.product_type}
+                  onChange={handleChange}
+                  className="w-full px-3.5 py-2.5 bg-[#F5F0E8] border border-[#E8DED2] rounded-md text-xs font-bold text-[#2A1B17] focus:outline-none focus:border-[#4B274F]"
+                >
+                  <option value="coffee">Coffee</option>
+                  <option value="tea">Tea</option>
+                  <option value="cake">Cake To Go</option>
+                </select>
+              </div>
+
+              <div className="sm:col-span-2">
+                <label className="block text-xs font-bold text-[#2A1B17] mb-1">Product Title *</label>
+                <input
+                  type="text"
+                  name="name"
+                  value={form.name}
+                  onChange={handleChange}
+                  required
+                  placeholder="e.g. Lotus Cheesecake or Sencha Green"
+                  className="w-full px-3.5 py-2.5 bg-[#F5F0E8] border border-[#E8DED2] rounded-md text-xs text-[#2A1B17] focus:outline-none focus:border-[#4B274F]"
+                />
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
-                <label className="block text-xs font-bold text-[#24150F] mb-1">Category *</label>
+                <label className="block text-xs font-bold text-[#2A1B17] mb-1">Category</label>
                 <select
                   name="category_id"
                   value={form.category_id}
                   onChange={handleChange}
-                  required
-                  className="w-full bg-[#F7F7F5] border border-[#E5E5E0] rounded-sm px-3 py-2 text-xs font-bold text-[#24150F] focus:outline-none"
+                  className="w-full px-3.5 py-2.5 bg-[#F5F0E8] border border-[#E8DED2] rounded-md text-xs text-[#2A1B17] font-semibold focus:outline-none focus:border-[#4B274F]"
                 >
                   {categories.map((c) => (
                     <option key={c.id} value={c.id}>{c.name}</option>
@@ -167,256 +194,318 @@ export default function AddProduct() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-[#24150F] mb-1">SKU Reference</label>
+                <label className="block text-xs font-bold text-[#2A1B17] mb-1">Pack / Serving Size</label>
+                <input
+                  type="text"
+                  name="pack_size"
+                  value={form.pack_size}
+                  onChange={handleChange}
+                  placeholder="e.g. 8oz, 12oz, or Whole Cake"
+                  className="w-full px-3.5 py-2.5 bg-[#F5F0E8] border border-[#E8DED2] rounded-md text-xs text-[#2A1B17] focus:outline-none focus:border-[#4B274F]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#2A1B17] mb-1">SKU / Item Code</label>
                 <input
                   type="text"
                   name="sku"
                   value={form.sku}
                   onChange={handleChange}
-                  placeholder="e.g. CB-CR-001"
-                  className="w-full bg-[#F7F7F5] border border-[#E5E5E0] rounded-sm px-3.5 py-2 text-xs text-[#24150F] focus:outline-none"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-bold text-[#24150F] mb-1">Roast Profile</label>
-                <select
-                  name="roast_level"
-                  value={form.roast_level}
-                  onChange={handleChange}
-                  className="w-full bg-[#F7F7F5] border border-[#E5E5E0] rounded-sm px-3 py-2 text-xs font-bold text-[#24150F] focus:outline-none"
-                >
-                  <option value="Light">Light Roast</option>
-                  <option value="Medium">Medium Roast</option>
-                  <option value="Dark">Dark Roast</option>
-                  <option value="Decaf">Decaffeinated</option>
-                  <option value="Flavoured">Flavoured Coffee</option>
-                  <option value="Tea">Whole Leaf Tea</option>
-                  <option value="Gear">Brewing Gear / Merchandise</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-[#24150F] mb-1">Origin / Terroir</label>
-                <input
-                  type="text"
-                  name="origin"
-                  value={form.origin}
-                  onChange={handleChange}
-                  placeholder="e.g. Tarrazu, Costa Rica"
-                  className="w-full bg-[#F7F7F5] border border-[#E5E5E0] rounded-sm px-3.5 py-2 text-xs text-[#24150F] focus:outline-none"
+                  placeholder="e.g. CBTL-CAKE-01"
+                  className="w-full px-3.5 py-2.5 bg-[#F5F0E8] border border-[#E8DED2] rounded-md text-xs text-[#2A1B17] focus:outline-none focus:border-[#4B274F]"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-[#24150F] mb-1">Short Character Note</label>
+              <label className="block text-xs font-bold text-[#2A1B17] mb-1">Short Description (Sub-headline)</label>
               <input
                 type="text"
                 name="short_description"
                 value={form.short_description}
                 onChange={handleChange}
-                placeholder="e.g. Sweet citrus aroma, crisp body, and notes of milk chocolate."
-                className="w-full bg-[#F7F7F5] border border-[#E5E5E0] rounded-sm px-3.5 py-2 text-xs text-[#24150F] focus:outline-none"
+                placeholder="Brief aromatic overview or flavor summary"
+                className="w-full px-3.5 py-2.5 bg-[#F5F0E8] border border-[#E8DED2] rounded-md text-xs text-[#2A1B17] focus:outline-none focus:border-[#4B274F]"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-[#24150F] mb-1">Full Description &amp; Tasting Profile</label>
+              <label className="block text-xs font-bold text-[#2A1B17] mb-1">Full Detailed Narrative</label>
               <textarea
                 name="description"
+                rows={4}
                 value={form.description}
                 onChange={handleChange}
-                rows="4"
-                placeholder="Detailed roastery profile, terroir, altitude, processing method..."
-                className="w-full bg-[#F7F7F5] border border-[#E5E5E0] rounded-sm px-3.5 py-2.5 text-xs text-[#24150F] focus:outline-none"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-[#24150F] mb-1">Search Tags (comma separated)</label>
-              <input
-                type="text"
-                name="tags"
-                value={form.tags}
-                onChange={handleChange}
-                placeholder="Costa Rica, Light Roast, Single Origin"
-                className="w-full bg-[#F7F7F5] border border-[#E5E5E0] rounded-sm px-3.5 py-2 text-xs text-[#24150F] focus:outline-none"
+                placeholder="Detailed craft notes, heritage, and background..."
+                className="w-full px-3.5 py-2.5 bg-[#F5F0E8] border border-[#E8DED2] rounded-md text-xs text-[#2A1B17] focus:outline-none focus:border-[#4B274F]"
               />
             </div>
           </div>
+        </div>
 
-          {/* PRICING & INVENTORY */}
-          <div className="bg-white border border-[#E5E5E0] rounded-sm p-6 space-y-4 shadow-xs">
-            <h3 className="font-serif-luxury font-bold text-base text-[#24150F] border-b border-[#E5E5E0] pb-3">
-              Pricing &amp; Stock Control
-            </h3>
+        {/* Section 2: Type Specific Attributes */}
+        {form.product_type === 'tea' && (
+          <div className="bg-white p-6 sm:p-8 rounded-md border border-[#E8DED2] shadow-xs space-y-4">
+            <h2 className="font-display text-xl font-bold text-[#351B38] border-b border-[#E8DED2] pb-3">
+              2. Tea Attributes
+            </h2>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
-                <label className="block text-xs font-bold text-[#24150F] mb-1">Regular Price (Rs.) *</label>
+                <label className="block text-xs font-bold text-[#2A1B17] mb-1">Tea Type</label>
                 <input
-                  type="number"
-                  step="0.01"
-                  name="price"
-                  value={form.price}
+                  type="text"
+                  name="tea_type"
+                  value={form.tea_type}
                   onChange={handleChange}
-                  required
-                  placeholder="3450"
-                  className="w-full bg-[#F7F7F5] border border-[#E5E5E0] rounded-sm px-3.5 py-2 text-xs font-bold text-[#24150F] focus:outline-none"
+                  placeholder="e.g. Green Tea, Oolong, Black Tea"
+                  className="w-full px-3.5 py-2.5 bg-[#F5F0E8] border border-[#E8DED2] rounded-md text-xs text-[#2A1B17] focus:outline-none focus:border-[#4B274F]"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-[#24150F] mb-1">Sale Price (Rs.)</label>
+                <label className="block text-xs font-bold text-[#2A1B17] mb-1">Caffeine Level</label>
                 <input
-                  type="number"
-                  step="0.01"
-                  name="sale_price"
-                  value={form.sale_price}
+                  type="text"
+                  name="caffeine"
+                  value={form.caffeine}
                   onChange={handleChange}
-                  placeholder="Optional"
-                  className="w-full bg-[#F7F7F5] border border-[#E5E5E0] rounded-sm px-3.5 py-2 text-xs font-bold text-[#24150F] focus:outline-none"
+                  placeholder="e.g. High, Medium, Caffeine-Free"
+                  className="w-full px-3.5 py-2.5 bg-[#F5F0E8] border border-[#E8DED2] rounded-md text-xs text-[#2A1B17] focus:outline-none focus:border-[#4B274F]"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-[#24150F] mb-1">Initial Stock Units</label>
+                <label className="block text-xs font-bold text-[#2A1B17] mb-1">Origin</label>
                 <input
-                  type="number"
-                  name="stock_quantity"
-                  value={form.stock_quantity}
+                  type="text"
+                  name="origin"
+                  value={form.origin}
                   onChange={handleChange}
-                  required
-                  className="w-full bg-[#F7F7F5] border border-[#E5E5E0] rounded-sm px-3.5 py-2 text-xs font-bold text-[#24150F] focus:outline-none"
+                  placeholder="e.g. Shizuoka, Japan"
+                  className="w-full px-3.5 py-2.5 bg-[#F5F0E8] border border-[#E8DED2] rounded-md text-xs text-[#2A1B17] focus:outline-none focus:border-[#4B274F]"
                 />
               </div>
             </div>
-          </div>
-
-        </div>
-
-        {/* Right Column: Media & Visibility (Span 4) */}
-        <div className="lg:col-span-4 space-y-6">
-          
-          {/* MEDIA & IMAGERY */}
-          <div className="bg-white border border-[#E5E5E0] rounded-sm p-6 space-y-4 shadow-xs">
-            <h3 className="font-serif-luxury font-bold text-base text-[#24150F] border-b border-[#E5E5E0] pb-3">
-              Product Imagery
-            </h3>
 
             <div>
-              <label className="block text-xs font-bold text-[#24150F] mb-1">Primary Image URL</label>
+              <label className="block text-xs font-bold text-[#2A1B17] mb-1">Flavor Profile</label>
               <input
                 type="text"
-                name="image"
-                value={form.image}
+                name="flavor_profile"
+                value={form.flavor_profile}
                 onChange={handleChange}
-                placeholder="https://... or /uploads/products/..."
-                className="w-full bg-[#F7F7F5] border border-[#E5E5E0] rounded-sm px-3.5 py-2 text-xs text-[#24150F] focus:outline-none"
+                placeholder="e.g. Delicate vegetal aroma with sweet grassy freshness"
+                className="w-full px-3.5 py-2.5 bg-[#F5F0E8] border border-[#E8DED2] rounded-md text-xs text-[#2A1B17] focus:outline-none focus:border-[#4B274F]"
+              />
+            </div>
+          </div>
+        )}
+
+        {form.product_type === 'cake' && (
+          <div className="bg-white p-6 sm:p-8 rounded-md border border-[#E8DED2] shadow-xs space-y-4">
+            <h2 className="font-display text-xl font-bold text-[#351B38] border-b border-[#E8DED2] pb-3">
+              2. Cake Attributes &amp; Serving
+            </h2>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-xs font-bold text-[#2A1B17] mb-1">Cake Type</label>
+                <input
+                  type="text"
+                  name="cake_type"
+                  value={form.cake_type}
+                  onChange={handleChange}
+                  placeholder="e.g. Cheesecake, Layered Cake"
+                  className="w-full px-3.5 py-2.5 bg-[#F5F0E8] border border-[#E8DED2] rounded-md text-xs text-[#2A1B17] focus:outline-none focus:border-[#4B274F]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#2A1B17] mb-1">Flavor Notes</label>
+                <input
+                  type="text"
+                  name="flavor"
+                  value={form.flavor}
+                  onChange={handleChange}
+                  placeholder="e.g. Biscoff Lotus, Belgian Chocolate"
+                  className="w-full px-3.5 py-2.5 bg-[#F5F0E8] border border-[#E8DED2] rounded-md text-xs text-[#2A1B17] focus:outline-none focus:border-[#4B274F]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#2A1B17] mb-1">Serving Size</label>
+                <input
+                  type="text"
+                  name="serving_size"
+                  value={form.serving_size}
+                  onChange={handleChange}
+                  placeholder="e.g. Whole Cake / 8-10 Slices"
+                  className="w-full px-3.5 py-2.5 bg-[#F5F0E8] border border-[#E8DED2] rounded-md text-xs text-[#2A1B17] focus:outline-none focus:border-[#4B274F]"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-[#2A1B17] mb-1">Allergen Notice</label>
+              <input
+                type="text"
+                name="allergen_information"
+                value={form.allergen_information}
+                onChange={handleChange}
+                placeholder="e.g. Contains Dairy, Eggs, Gluten, Nuts"
+                className="w-full px-3.5 py-2.5 bg-[#F5F0E8] border border-[#E8DED2] rounded-md text-xs text-[#2A1B17] focus:outline-none focus:border-[#4B274F]"
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Section 3: Pricing & Inventory */}
+        <div className="bg-white p-6 sm:p-8 rounded-md border border-[#E8DED2] shadow-xs space-y-4">
+          <h2 className="font-display text-xl font-bold text-[#351B38] border-b border-[#E8DED2] pb-3">
+            3. Pricing &amp; Inventory
+          </h2>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-[#2A1B17] mb-1">Price (PKR) (Optional)</label>
+              <input
+                type="number"
+                name="price"
+                value={form.price}
+                onChange={handleChange}
+                placeholder="Leave blank if unavailable"
+                className="w-full px-3.5 py-2.5 bg-[#F5F0E8] border border-[#E8DED2] rounded-md text-xs text-[#2A1B17] font-semibold focus:outline-none focus:border-[#4B274F]"
               />
             </div>
 
-            {form.image && (
-              <div className="aspect-square bg-[#F7F7F5] border border-[#E5E5E0] rounded-sm overflow-hidden">
-                <img src={form.image} alt="Preview" className="w-full h-full object-cover" />
-              </div>
-            )}
+            <div>
+              <label className="block text-xs font-bold text-[#2A1B17] mb-1">Sale Price (PKR)</label>
+              <input
+                type="number"
+                name="sale_price"
+                value={form.sale_price}
+                onChange={handleChange}
+                placeholder="e.g. 3850"
+                className="w-full px-3.5 py-2.5 bg-[#F5F0E8] border border-[#E8DED2] rounded-md text-xs text-[#2A1B17] font-semibold focus:outline-none focus:border-[#4B274F]"
+              />
+            </div>
 
-            {/* Additional Gallery */}
-            <div className="pt-2 border-t border-[#E5E5E0] space-y-2">
-              <label className="block text-xs font-bold text-[#24150F]">Additional Gallery Image URL</label>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={newGalleryUrl}
-                  onChange={(e) => setNewGalleryUrl(e.target.value)}
-                  placeholder="https://..."
-                  className="flex-1 bg-[#F7F7F5] border border-[#E5E5E0] rounded-sm px-3 py-1.5 text-xs text-[#24150F] focus:outline-none"
-                />
-                <button
-                  type="button"
-                  onClick={handleAddGalleryImage}
-                  className="px-3 py-1.5 bg-[#24150F] text-white text-xs font-bold rounded-sm"
-                >
-                  Add
-                </button>
-              </div>
-
-              {form.additional_images.length > 0 && (
-                <div className="grid grid-cols-3 gap-2 pt-2">
-                  {form.additional_images.map((img, idx) => (
-                    <div key={idx} className="relative aspect-square border border-[#E5E5E0] rounded-sm overflow-hidden group">
-                      <img src={img} alt={`Gallery ${idx}`} className="w-full h-full object-cover" />
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveGalleryImage(idx)}
-                        className="absolute top-1 right-1 p-1 bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <Trash2 className="w-3 h-3" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
+            <div>
+              <label className="block text-xs font-bold text-[#2A1B17] mb-1">Stock Quantity</label>
+              <input
+                type="number"
+                name="stock_quantity"
+                value={form.stock_quantity}
+                onChange={handleChange}
+                className="w-full px-3.5 py-2.5 bg-[#F5F0E8] border border-[#E8DED2] rounded-md text-xs text-[#2A1B17] font-semibold focus:outline-none focus:border-[#4B274F]"
+              />
             </div>
           </div>
+        </div>
 
-          {/* VISIBILITY & BADGES */}
-          <div className="bg-white border border-[#E5E5E0] rounded-sm p-6 space-y-3 shadow-xs">
-            <h3 className="font-serif-luxury font-bold text-base text-[#24150F] border-b border-[#E5E5E0] pb-3">
-              Visibility &amp; Badges
-            </h3>
+        {/* Section 4: Imagery */}
+        <div className="bg-white p-6 sm:p-8 rounded-md border border-[#E8DED2] shadow-xs space-y-4">
+          <h2 className="font-display text-xl font-bold text-[#351B38] border-b border-[#E8DED2] pb-3">
+            4. Product Imagery
+          </h2>
 
-            <label className="flex items-center gap-3 cursor-pointer py-1">
+          <div className="space-y-4">
+            <div>
+              <label className="block text-xs font-bold text-[#2A1B17] mb-1">Primary Product Image</label>
+              <div className="flex items-center gap-3">
+                <input
+                  type="text"
+                  name="image"
+                  value={form.image}
+                  onChange={handleChange}
+                  placeholder="/products/tea/sencha-green.jpg or URL"
+                  className="flex-1 px-3.5 py-2.5 bg-[#F5F0E8] border border-[#E8DED2] rounded-md text-xs text-[#2A1B17] focus:outline-none focus:border-[#4B274F]"
+                />
+                <label className="px-4 py-2.5 bg-[#4B274F] hover:bg-[#351B38] text-white text-xs font-bold rounded-md cursor-pointer transition-colors flex items-center gap-1.5">
+                  <Upload className="w-3.5 h-3.5" />
+                  {uploading ? 'Uploading...' : 'Upload Image'}
+                  <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
+                </label>
+              </div>
+            </div>
+
+            {form.image && (
+              <div className="w-32 h-32 bg-[#F5F0E8] border border-[#E8DED2] rounded-md overflow-hidden p-2 flex items-center justify-center relative">
+                <img src={form.image} alt="Preview" className="w-full h-full object-contain" />
+                <button
+                  type="button"
+                  onClick={() => setForm((prev) => ({ ...prev, image: '' }))}
+                  className="absolute top-1 right-1 p-1 bg-white/80 rounded-full text-red-600 hover:bg-white cursor-pointer"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Section 5: Visibility & Flags */}
+        <div className="bg-white p-6 sm:p-8 rounded-md border border-[#E8DED2] shadow-xs space-y-4">
+          <h2 className="font-display text-xl font-bold text-[#351B38] border-b border-[#E8DED2] pb-3">
+            5. Storefront Visibility Flags
+          </h2>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+            <label className="flex items-center gap-2 text-xs font-bold text-[#2A1B17] cursor-pointer">
               <input
                 type="checkbox"
                 name="is_active"
                 checked={form.is_active}
                 onChange={handleChange}
-                className="w-4 h-4 accent-[#24150F]"
+                className="w-4 h-4 accent-[#4B274F]"
               />
-              <span className="text-xs font-bold text-[#24150F]">Active on Storefront</span>
+              <span>Active on Storefront</span>
             </label>
 
-            <label className="flex items-center gap-3 cursor-pointer py-1">
+            <label className="flex items-center gap-2 text-xs font-bold text-[#2A1B17] cursor-pointer">
               <input
                 type="checkbox"
                 name="is_featured"
                 checked={form.is_featured}
                 onChange={handleChange}
-                className="w-4 h-4 accent-[#24150F]"
+                className="w-4 h-4 accent-[#4B274F]"
               />
-              <span className="text-xs font-bold text-[#24150F]">Featured on Homepage</span>
+              <span>Featured Highlight</span>
             </label>
 
-            <label className="flex items-center gap-3 cursor-pointer py-1">
+            <label className="flex items-center gap-2 text-xs font-bold text-[#2A1B17] cursor-pointer">
               <input
                 type="checkbox"
                 name="is_best_seller"
                 checked={form.is_best_seller}
                 onChange={handleChange}
-                className="w-4 h-4 accent-[#24150F]"
+                className="w-4 h-4 accent-[#4B274F]"
               />
-              <span className="text-xs font-bold text-[#24150F]">Best Seller Badge</span>
+              <span>Best Seller Badge</span>
             </label>
           </div>
+        </div>
 
-          {/* Save Action */}
+        {/* Save Actions */}
+        <div className="flex justify-end gap-3 pt-4 border-t border-[#E8DED2]">
+          <Link
+            to="/admin/products"
+            className="px-6 py-3 border border-[#E8DED2] text-xs font-bold text-[#2A1B17] rounded-md hover:bg-[#F5F0E8] transition-colors"
+          >
+            Cancel
+          </Link>
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3.5 bg-[#24150F] hover:bg-[#5A3825] text-white text-xs font-bold uppercase tracking-[0.2em] rounded-sm transition-colors shadow-md flex items-center justify-center gap-2 disabled:opacity-50"
+            className="px-8 py-3 bg-[#4B274F] hover:bg-[#351B38] text-white text-xs font-bold uppercase tracking-wider rounded-md transition-colors shadow-sm flex items-center gap-2 cursor-pointer disabled:opacity-50"
           >
-            <Save className="w-4 h-4 text-[#B8895B]" /> {loading ? 'Saving Product...' : 'Publish Product'}
+            <Save className="w-4 h-4" /> {loading ? 'Saving...' : 'Publish Product'}
           </button>
-
         </div>
 
       </form>
-
     </div>
   );
 }

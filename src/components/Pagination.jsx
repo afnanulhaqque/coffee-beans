@@ -10,11 +10,11 @@ export default function Pagination({ currentPage, totalPages, onPageChange }) {
   }
 
   return (
-    <div className="flex items-center justify-center space-x-2 my-10">
+    <div className="flex items-center justify-center space-x-2 my-10 font-body">
       <button
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
-        className="p-2.5 rounded-xl border border-[#EADBC8] bg-white text-[#3E2723] hover:bg-[#F5EFE6] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+        className="p-2.5 rounded-md border border-[#E8DED2] bg-white text-[#2A1B17] hover:bg-[#F5F0E8] hover:border-[#4B274F] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
         aria-label="Previous Page"
       >
         <ChevronLeft className="w-5 h-5" />
@@ -24,10 +24,10 @@ export default function Pagination({ currentPage, totalPages, onPageChange }) {
         <button
           key={p}
           onClick={() => onPageChange(p)}
-          className={`w-10 h-10 rounded-xl text-sm font-bold transition-all ${
+          className={`w-10 h-10 rounded-md text-xs font-bold transition-all ${
             p === currentPage
-              ? 'bg-[#3E2723] text-white shadow-md'
-              : 'bg-white border border-[#EADBC8] text-[#3E2723] hover:bg-[#F5EFE6]'
+              ? 'bg-[#4B274F] text-white shadow-xs'
+              : 'bg-white border border-[#E8DED2] text-[#2A1B17] hover:bg-[#F5F0E8] hover:text-[#4B274F]'
           }`}
         >
           {p}
@@ -37,7 +37,7 @@ export default function Pagination({ currentPage, totalPages, onPageChange }) {
       <button
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
-        className="p-2.5 rounded-xl border border-[#EADBC8] bg-white text-[#3E2723] hover:bg-[#F5EFE6] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+        className="p-2.5 rounded-md border border-[#E8DED2] bg-white text-[#2A1B17] hover:bg-[#F5F0E8] hover:border-[#4B274F] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
         aria-label="Next Page"
       >
         <ChevronRight className="w-5 h-5" />

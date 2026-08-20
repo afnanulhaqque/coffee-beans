@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Search, SlidersHorizontal, ChevronDown, RefreshCw, X } from 'lucide-react';
+import { Search, ChevronDown, X } from 'lucide-react';
 import api from '../services/api';
 import ProductCard from '../components/ProductCard';
 import Pagination from '../components/Pagination';
@@ -9,7 +9,6 @@ export default function Shop() {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [products, setProducts] = useState([]);
-  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
@@ -23,18 +22,6 @@ export default function Shop() {
   const inStockParam = searchParams.get('in_stock') === 'true';
 
   const [searchInput, setSearchInput] = useState(searchParam);
-
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const res = await api.get('/categories');
-        setCategories(res.data.categories || []);
-      } catch (err) {
-        console.error('Failed to load categories', err);
-      }
-    };
-    fetchCategories();
-  }, []);
 
   const fetchProducts = async () => {
     setLoading(true);
@@ -86,23 +73,23 @@ export default function Shop() {
   };
 
   return (
-    <div className="pt-28 sm:pt-36 pb-24 px-6 sm:px-8 max-w-7xl mx-auto space-y-12 font-body text-[#1C1714]">
+    <div className="pt-28 sm:pt-36 pb-24 px-6 sm:px-8 max-w-7xl mx-auto space-y-12 font-body text-[#2A1B17]">
       
       {/* Editorial Header */}
       <div className="text-center max-w-2xl mx-auto space-y-3">
-        <span className="text-[10px] tracking-[0.3em] uppercase font-medium text-[#B8895B] block">
+        <span className="text-[10px] tracking-[0.3em] uppercase font-bold text-[#4B274F] block">
           ESTATE RESERVE &amp; SIGNATURE BLENDS
         </span>
-        <h1 className="font-display text-4xl sm:text-5xl text-[#24150F] tracking-tight">
+        <h1 className="font-display text-4xl sm:text-5xl text-[#351B38] tracking-tight">
           Shop Coffee &amp; Tea
         </h1>
-        <p className="text-xs sm:text-sm text-[#756A62] font-normal leading-relaxed">
+        <p className="text-xs sm:text-sm text-[#6B4A3A] font-normal leading-relaxed">
           From single-origin high-grown beans to hand-plucked whole leaf teas and brewing essentials. Roasted fresh and delivered directly to you.
         </p>
       </div>
 
-      {/* Main Department Tabs in Plus Jakarta Sans */}
-      <div className="flex items-center justify-center gap-2 sm:gap-4 overflow-x-auto pb-2 border-b border-[#EDE4D8]">
+      {/* Main Department Tabs */}
+      <div className="flex items-center justify-center gap-2 sm:gap-3 overflow-x-auto pb-2 border-b border-[#E8DED2]">
         {[
           { label: 'All Catalog', value: 'all' },
           { label: 'Coffee', value: 'coffee' },
@@ -112,10 +99,10 @@ export default function Shop() {
           <button
             key={tab.value}
             onClick={() => updateParam('category', tab.value)}
-            className={`px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.15em] transition-all rounded-sm shrink-0 ${
+            className={`px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.15em] transition-all rounded-md shrink-0 ${
               categoryParam === tab.value
-                ? 'bg-[#24150F] text-[#F6F1E9]'
-                : 'bg-transparent text-[#5A3825] hover:text-[#24150F] hover:bg-[#EDE4D8]/60'
+                ? 'bg-[#4B274F] text-white shadow-xs'
+                : 'bg-white border border-[#E8DED2] text-[#2A1B17] hover:bg-[#F5F0E8] hover:text-[#4B274F]'
             }`}
           >
             {tab.label}
@@ -124,7 +111,7 @@ export default function Shop() {
       </div>
 
       {/* Horizontal Filter & Controls Bar */}
-      <div className="bg-white border border-[#EDE4D8] rounded-sm p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xs">
+      <div className="bg-white border border-[#E8DED2] rounded-md p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xs">
         
         {/* Left Filter Selectors */}
         <div className="flex flex-wrap items-center gap-3 text-xs">
@@ -134,7 +121,7 @@ export default function Shop() {
             <select
               value={roastParam}
               onChange={(e) => updateParam('roast', e.target.value)}
-              className="bg-[#F6F1E9] border border-[#EDE4D8] text-[#24150F] font-semibold text-xs uppercase tracking-wider px-3.5 py-2 pr-8 rounded-sm appearance-none focus:outline-none cursor-pointer"
+              className="bg-[#F5F0E8] border border-[#E8DED2] text-[#2A1B17] font-semibold text-xs uppercase tracking-wider px-3.5 py-2 pr-8 rounded-md appearance-none focus:outline-none focus:border-[#4B274F] cursor-pointer"
             >
               <option value="all">All Roast Profiles</option>
               <option value="Light">Light Roast</option>
@@ -144,16 +131,16 @@ export default function Shop() {
               <option value="Flavoured">Flavoured Coffee</option>
               <option value="Tea">Tea Varieties</option>
             </select>
-            <ChevronDown className="w-3.5 h-3.5 text-[#5A3825] absolute right-2.5 top-3 pointer-events-none" />
+            <ChevronDown className="w-3.5 h-3.5 text-[#4B274F] absolute right-2.5 top-3 pointer-events-none" />
           </div>
 
           {/* In-Stock Toggle */}
-          <label className="flex items-center gap-2 px-3 py-2 bg-[#F6F1E9] border border-[#EDE4D8] rounded-sm text-xs font-semibold text-[#24150F] cursor-pointer hover:bg-[#EDE4D8] transition-colors">
+          <label className="flex items-center gap-2 px-3 py-2 bg-[#F5F0E8] border border-[#E8DED2] rounded-md text-xs font-semibold text-[#2A1B17] cursor-pointer hover:bg-[#E8DED2] transition-colors">
             <input
               type="checkbox"
               checked={inStockParam}
               onChange={(e) => updateParam('in_stock', e.target.checked)}
-              className="w-3.5 h-3.5 accent-[#24150F]"
+              className="w-3.5 h-3.5 accent-[#4B274F]"
             />
             <span>In Stock Only</span>
           </label>
@@ -165,9 +152,9 @@ export default function Shop() {
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               placeholder="Search product..."
-              className="w-full bg-[#F6F1E9] border border-[#EDE4D8] rounded-sm pl-8 pr-3 py-2 text-xs text-[#24150F] focus:outline-none focus:border-[#24150F]"
+              className="w-full bg-[#F5F0E8] border border-[#E8DED2] rounded-md pl-8 pr-3 py-2 text-xs text-[#2A1B17] focus:outline-none focus:border-[#4B274F]"
             />
-            <Search className="w-3.5 h-3.5 text-[#756A62] absolute left-2.5 top-2.5" />
+            <Search className="w-3.5 h-3.5 text-[#6B4A3A] absolute left-2.5 top-2.5" />
           </form>
 
           {/* Active Filter Clear Button */}
@@ -183,16 +170,16 @@ export default function Shop() {
         </div>
 
         {/* Right Sort Selector & Result Count */}
-        <div className="flex items-center justify-between sm:justify-end gap-4 text-xs pt-2 sm:pt-0 border-t sm:border-t-0 border-[#EDE4D8]">
-          <span className="text-[#756A62] text-[11px] font-normal">
-            Showing <strong className="font-semibold text-[#24150F]">{products.length}</strong> of {totalCount} items
+        <div className="flex items-center justify-between sm:justify-end gap-4 text-xs pt-2 sm:pt-0 border-t sm:border-t-0 border-[#E8DED2]">
+          <span className="text-[#6B4A3A] text-[11px] font-normal">
+            Showing <strong className="font-semibold text-[#2A1B17]">{products.length}</strong> of {totalCount} items
           </span>
 
           <div className="relative">
             <select
               value={sortParam}
               onChange={(e) => updateParam('sort', e.target.value)}
-              className="bg-[#F6F1E9] border border-[#EDE4D8] text-[#24150F] font-semibold text-xs uppercase tracking-wider px-3.5 py-2 pr-8 rounded-sm appearance-none focus:outline-none cursor-pointer"
+              className="bg-[#F5F0E8] border border-[#E8DED2] text-[#2A1B17] font-semibold text-xs uppercase tracking-wider px-3.5 py-2 pr-8 rounded-md appearance-none focus:outline-none focus:border-[#4B274F] cursor-pointer"
             >
               <option value="newest">Sort: Newest First</option>
               <option value="best_selling">Sort: Best Selling</option>
@@ -200,26 +187,26 @@ export default function Shop() {
               <option value="price_low">Sort: Price Low to High</option>
               <option value="price_high">Sort: Price High to Low</option>
             </select>
-            <ChevronDown className="w-3.5 h-3.5 text-[#5A3825] absolute right-2.5 top-3 pointer-events-none" />
+            <ChevronDown className="w-3.5 h-3.5 text-[#4B274F] absolute right-2.5 top-3 pointer-events-none" />
           </div>
         </div>
 
       </div>
 
-      {/* 3-Column Large Product Grid */}
+      {/* Product Grid */}
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10">
           {[1, 2, 3, 4, 5, 6].map((n) => (
-            <div key={n} className="bg-[#EDE4D8]/50 h-96 animate-pulse rounded-sm" />
+            <div key={n} className="bg-white border border-[#E8DED2] h-96 animate-pulse rounded-md" />
           ))}
         </div>
       ) : products.length === 0 ? (
-        <div className="py-24 bg-white border border-[#EDE4D8] rounded-sm text-center space-y-4 max-w-lg mx-auto">
-          <h3 className="font-display text-2xl text-[#24150F]">No products found</h3>
-          <p className="text-xs text-[#756A62] font-normal">Try adjusting your filter preferences or search term.</p>
+        <div className="py-24 bg-white border border-[#E8DED2] rounded-md text-center space-y-4 max-w-lg mx-auto shadow-xs">
+          <h3 className="font-display text-2xl text-[#351B38]">No products found</h3>
+          <p className="text-xs text-[#6B4A3A] font-normal">Try adjusting your filter preferences or search term.</p>
           <button
             onClick={clearFilters}
-            className="px-6 py-2.5 bg-[#24150F] text-[#F6F1E9] text-xs font-semibold uppercase tracking-widest rounded-sm"
+            className="px-6 py-2.5 bg-[#4B274F] hover:bg-[#351B38] text-white text-xs font-semibold uppercase tracking-widest rounded-md transition-colors"
           >
             Reset Filters
           </button>

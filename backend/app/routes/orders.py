@@ -104,6 +104,8 @@ def create_guest_order():
 
         # Current authoritative price from DB
         unit_price = product.effective_price()
+        if unit_price is None:
+            unit_price = 0.0
         item_subtotal = round(unit_price * qty, 2)
         calculated_subtotal += item_subtotal
 

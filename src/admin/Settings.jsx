@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Settings as SettingsIcon, Save, CheckCircle2, AlertCircle, RefreshCw } from 'lucide-react';
+import { Save, CheckCircle2, AlertCircle } from 'lucide-react';
 import api from '../services/api';
 
 export default function Settings() {
@@ -45,29 +45,29 @@ export default function Settings() {
 
   if (loading) {
     return (
-      <div className="max-w-3xl mx-auto py-20 text-center text-xs font-bold text-gray-500">
+      <div className="max-w-3xl mx-auto py-20 text-center text-xs font-bold text-[#6B4A3A]">
         Loading settings...
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-4xl mx-auto space-y-6 text-[#2A1B17] font-body pb-16">
       <div>
-        <h1 className="font-serif-luxury text-2xl sm:text-3xl font-bold text-[#3E2723]">
+        <h1 className="font-display text-2xl sm:text-3xl font-bold text-[#351B38]">
           Storefront &amp; Logistics Settings
         </h1>
-        <p className="text-xs text-gray-500 mt-1">
+        <p className="text-xs text-[#6B4A3A] mt-1">
           Configure nationwide delivery fees, threshold promotions, contact info, and announcement banner
         </p>
       </div>
 
       {msg.text && (
         <div
-          className={`p-4 rounded-2xl text-xs font-semibold flex items-center gap-2 ${
+          className={`p-4 rounded-md text-xs font-semibold flex items-center gap-2 ${
             msg.type === 'success'
-              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-              : 'bg-red-50 text-red-700 border border-red-200'
+              ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+              : 'bg-red-50 text-red-800 border border-red-200'
           }`}
         >
           {msg.type === 'success' ? (
@@ -82,131 +82,110 @@ export default function Settings() {
       <form onSubmit={handleSubmit} className="space-y-6">
         
         {/* Logistics & Delivery Rates */}
-        <div className="bg-white p-6 sm:p-8 rounded-3xl border border-[#EADBC8] shadow-xs space-y-4">
-          <h2 className="font-serif-luxury text-base font-bold text-[#3E2723] pb-2 border-b border-gray-100">
+        <div className="bg-white p-6 sm:p-8 rounded-md border border-[#E8DED2] shadow-xs space-y-4">
+          <h2 className="font-display text-lg font-bold text-[#351B38] pb-2 border-b border-[#E8DED2]">
             Shipping &amp; Delivery Logistics
           </h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold text-gray-700 mb-1">Standard Delivery Fee (PKR)</label>
+              <label className="block text-xs font-bold text-[#2A1B17] mb-1">Standard Delivery Fee (PKR)</label>
               <input
                 type="number"
                 name="delivery_fee"
                 value={settings.delivery_fee || ''}
                 onChange={handleChange}
                 required
-                className="w-full bg-[#FAF6F0] border border-[#EADBC8] rounded-xl px-3.5 py-2.5 text-xs focus:outline-none font-bold text-[#3E2723]"
+                className="w-full bg-[#F5F0E8] border border-[#E8DED2] rounded-md px-3.5 py-2.5 text-xs focus:outline-none font-bold text-[#351B38]"
               />
-              <span className="text-[10px] text-gray-400 mt-1 block">Default fee charged on orders below threshold.</span>
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-gray-700 mb-1">Free Delivery Threshold (PKR)</label>
+              <label className="block text-xs font-bold text-[#2A1B17] mb-1">Free Delivery Minimum Cart Threshold (PKR)</label>
               <input
                 type="number"
-                name="free_delivery_threshold"
-                value={settings.free_delivery_threshold || ''}
+                name="free_shipping_threshold"
+                value={settings.free_shipping_threshold || ''}
                 onChange={handleChange}
                 required
-                className="w-full bg-[#FAF6F0] border border-[#EADBC8] rounded-xl px-3.5 py-2.5 text-xs focus:outline-none font-bold text-[#3E2723]"
+                className="w-full bg-[#F5F0E8] border border-[#E8DED2] rounded-md px-3.5 py-2.5 text-xs focus:outline-none font-bold text-[#351B38]"
               />
-              <span className="text-[10px] text-gray-400 mt-1 block">Orders equal to or exceeding this qualify for FREE delivery.</span>
             </div>
           </div>
         </div>
 
-        {/* Announcement Bar */}
-        <div className="bg-white p-6 sm:p-8 rounded-3xl border border-[#EADBC8] shadow-xs space-y-4">
-          <h2 className="font-serif-luxury text-base font-bold text-[#3E2723] pb-2 border-b border-gray-100">
-            Top Announcement Bar
+        {/* Brand Contact & Support */}
+        <div className="bg-white p-6 sm:p-8 rounded-md border border-[#E8DED2] shadow-xs space-y-4">
+          <h2 className="font-display text-lg font-bold text-[#351B38] pb-2 border-b border-[#E8DED2]">
+            Customer Support &amp; Storefront Brand Info
           </h2>
 
-          <div>
-            <label className="block text-xs font-bold text-gray-700 mb-1">Announcement Message</label>
-            <input
-              type="text"
-              name="announcement_bar"
-              value={settings.announcement_bar || ''}
-              onChange={handleChange}
-              placeholder="e.g. Free Express Delivery across Pakistan on all orders above Rs. 3,500! ☕"
-              className="w-full bg-[#FAF6F0] border border-[#EADBC8] rounded-xl px-3.5 py-2.5 text-xs focus:outline-none font-semibold text-[#3E2723]"
-            />
-          </div>
-        </div>
-
-        {/* Contact Information */}
-        <div className="bg-white p-6 sm:p-8 rounded-3xl border border-[#EADBC8] shadow-xs space-y-4">
-          <h2 className="font-serif-luxury text-base font-bold text-[#3E2723] pb-2 border-b border-gray-100">
-            Store Contact &amp; Brand Information
-          </h2>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
-              <label className="block text-xs font-bold text-gray-700 mb-1">Store Name</label>
+              <label className="block text-xs font-bold text-[#2A1B17] mb-1">Support Phone / WhatsApp</label>
               <input
                 type="text"
-                name="store_name"
-                value={settings.store_name || ''}
+                name="support_phone"
+                value={settings.support_phone || ''}
                 onChange={handleChange}
-                className="w-full bg-[#FAF6F0] border border-[#EADBC8] rounded-xl px-3.5 py-2.5 text-xs focus:outline-none font-semibold"
+                placeholder="0302 5455448"
+                className="w-full bg-[#F5F0E8] border border-[#E8DED2] rounded-md px-3.5 py-2.5 text-xs focus:outline-none"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-gray-700 mb-1">Support Email</label>
+              <label className="block text-xs font-bold text-[#2A1B17] mb-1">Support Email</label>
               <input
                 type="email"
-                name="contact_email"
-                value={settings.contact_email || ''}
+                name="support_email"
+                value={settings.support_email || ''}
                 onChange={handleChange}
-                className="w-full bg-[#FAF6F0] border border-[#EADBC8] rounded-xl px-3.5 py-2.5 text-xs focus:outline-none"
+                placeholder="info@coffeebean.pk"
+                className="w-full bg-[#F5F0E8] border border-[#E8DED2] rounded-md px-3.5 py-2.5 text-xs focus:outline-none"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-gray-700 mb-1">Helpline Phone</label>
+              <label className="block text-xs font-bold text-[#2A1B17] mb-1">Order Notification Email</label>
               <input
-                type="text"
-                name="contact_phone"
-                value={settings.contact_phone || ''}
+                type="email"
+                name="order_notification_email"
+                value={settings.order_notification_email || ''}
                 onChange={handleChange}
-                className="w-full bg-[#FAF6F0] border border-[#EADBC8] rounded-xl px-3.5 py-2.5 text-xs focus:outline-none"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-gray-700 mb-1">WhatsApp Support</label>
-              <input
-                type="text"
-                name="support_whatsapp"
-                value={settings.support_whatsapp || ''}
-                onChange={handleChange}
-                className="w-full bg-[#FAF6F0] border border-[#EADBC8] rounded-xl px-3.5 py-2.5 text-xs focus:outline-none"
+                placeholder="orders@coffeebean.pk"
+                className="w-full bg-[#F5F0E8] border border-[#E8DED2] rounded-md px-3.5 py-2.5 text-xs focus:outline-none"
               />
             </div>
           </div>
+        </div>
+
+        {/* Global Announcement Banner */}
+        <div className="bg-white p-6 sm:p-8 rounded-md border border-[#E8DED2] shadow-xs space-y-4">
+          <h2 className="font-display text-lg font-bold text-[#351B38] pb-2 border-b border-[#E8DED2]">
+            Top Navbar Announcement Marquee
+          </h2>
 
           <div>
-            <label className="block text-xs font-bold text-gray-700 mb-1">Store HQ Address</label>
+            <label className="block text-xs font-bold text-[#2A1B17] mb-1">Announcement Message Text</label>
             <input
               type="text"
-              name="store_address"
-              value={settings.store_address || ''}
+              name="announcement_text"
+              value={settings.announcement_text || ''}
               onChange={handleChange}
-              className="w-full bg-[#FAF6F0] border border-[#EADBC8] rounded-xl px-3.5 py-2.5 text-xs focus:outline-none"
+              placeholder="Freshly roasted specialty coffees &amp; whole leaf teas • Free nationwide delivery on orders over Rs. 3,500"
+              className="w-full bg-[#F5F0E8] border border-[#E8DED2] rounded-md px-3.5 py-2.5 text-xs focus:outline-none"
             />
           </div>
         </div>
 
-        <div className="flex justify-end">
+        {/* Save CTA */}
+        <div className="flex justify-end pt-2">
           <button
             type="submit"
             disabled={saving}
-            className="px-8 py-3.5 bg-[#3E2723] hover:bg-[#6F4E37] text-white font-bold text-xs rounded-xl shadow-md flex items-center gap-2 disabled:opacity-50"
+            className="px-8 py-3.5 bg-[#4B274F] hover:bg-[#351B38] text-white font-bold text-xs uppercase tracking-wider rounded-md transition-colors shadow-md flex items-center gap-2 cursor-pointer disabled:opacity-50"
           >
-            <Save className="w-4 h-4" />
-            {saving ? 'Saving Settings...' : 'Save All Settings'}
+            <Save className="w-4 h-4" /> {saving ? 'Saving...' : 'Save Settings'}
           </button>
         </div>
 

@@ -2,18 +2,28 @@
 
 @layer base {
   :root {
-    --color-espresso: #24150F;
-    --color-roast: #5A3825;
-    --color-caramel: #B8895B;
-    --color-cream: #F6F1E9;
-    --color-sand: #EDE4D8;
-    --color-dark: #1C1714;
-    --color-muted: #756A62;
+    --color-bossanova: #4B274F;
+    --color-deep-purple: #351B38;
+    --color-coffee-brown: #6B4A3A;
+    --color-dark-coffee: #2A1B17;
+    --color-warm-cream: #F5F0E8;
+    --color-soft-beige: #E8DED2;
+    --color-white: #FFFFFF;
+    --color-black: #111111;
+
+    /* Legacy compatibility mappings aligned to CBTL palette */
+    --color-espresso: #2A1B17;
+    --color-roast: #6B4A3A;
+    --color-caramel: #4B274F;
+    --color-cream: #F5F0E8;
+    --color-sand: #E8DED2;
+    --color-dark: #2A1B17;
+    --color-muted: #6B4A3A;
   }
 
   body {
-    background-color: var(--color-cream);
-    color: var(--color-dark);
+    background-color: var(--color-warm-cream);
+    color: var(--color-dark-coffee);
     font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     font-weight: 400;
     letter-spacing: -0.01em;
@@ -38,45 +48,140 @@
   font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
-/* Custom Utilities for Luxury Editorial Layouts */
+/* CBTL Brand Color Utility Classes */
+.bg-bossanova {
+  background-color: #4B274F;
+}
+
+.text-bossanova {
+  color: #4B274F;
+}
+
+.border-bossanova {
+  border-color: #4B274F;
+}
+
+.bg-deep-purple {
+  background-color: #351B38;
+}
+
+.text-deep-purple {
+  color: #351B38;
+}
+
+.border-deep-purple {
+  border-color: #351B38;
+}
+
+.bg-coffee-brown {
+  background-color: #6B4A3A;
+}
+
+.text-coffee-brown {
+  color: #6B4A3A;
+}
+
+.border-coffee-brown {
+  border-color: #6B4A3A;
+}
+
+.bg-dark-coffee {
+  background-color: #2A1B17;
+}
+
+.text-dark-coffee {
+  color: #2A1B17;
+}
+
+.border-dark-coffee {
+  border-color: #2A1B17;
+}
+
+.bg-warm-cream {
+  background-color: #F5F0E8;
+}
+
+.text-warm-cream {
+  color: #F5F0E8;
+}
+
+.bg-soft-beige {
+  background-color: #E8DED2;
+}
+
+.text-soft-beige {
+  color: #E8DED2;
+}
+
+.border-soft-beige {
+  border-color: #E8DED2;
+}
+
+/* Legacy Utility class compatibility mappings */
 .bg-espresso {
-  background-color: #24150F;
+  background-color: #2A1B17;
 }
 
 .text-espresso {
-  color: #24150F;
+  color: #2A1B17;
 }
 
 .bg-roast {
-  background-color: #5A3825;
+  background-color: #6B4A3A;
 }
 
 .text-roast {
-  color: #5A3825;
+  color: #6B4A3A;
 }
 
 .bg-caramel {
-  background-color: #B8895B;
+  background-color: #4B274F;
 }
 
 .text-caramel {
-  color: #B8895B;
+  color: #4B274F;
 }
 
 .border-caramel {
-  border-color: #B8895B;
+  border-color: #4B274F;
 }
 
 .bg-cream {
-  background-color: #F6F1E9;
+  background-color: #F5F0E8;
 }
 
 .bg-sand {
-  background-color: #EDE4D8;
+  background-color: #E8DED2;
 }
 
 .text-muted-coffee {
-  color: #756A62;
+  color: #6B4A3A;
+}
+
+/* CBTL Standard Button Styles */
+.btn-cbtl-primary {
+  background-color: #4B274F;
+  color: #FFFFFF;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-cbtl-primary:hover {
+  background-color: #351B38;
+  color: #FFFFFF;
+}
+
+.btn-cbtl-secondary {
+  background-color: transparent;
+  border: 1.5px solid #4B274F;
+  color: #4B274F;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-cbtl-secondary:hover {
+  background-color: #4B274F;
+  color: #FFFFFF;
 }
 
 /* Smooth Image Zoom on Card Hover */
@@ -88,22 +193,23 @@
   transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Subtle Scrollbar */
+/* Subtle Scrollbar in Warm Beige & Bossanova */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #F6F1E9;
+  background: #F5F0E8;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #D8CCC0;
+  background: #E8DED2;
+  border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #B8895B;
+  background: #4B274F;
 }
 
 /* Smooth Transitions */
@@ -111,11 +217,11 @@
   transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Editorial subtle border */
+/* Editorial subtle borders */
 .border-editorial {
-  border-color: rgba(36, 21, 15, 0.1);
+  border-color: #E8DED2;
 }
 
 .border-editorial-dark {
-  border-color: rgba(246, 241, 233, 0.12);
+  border-color: rgba(245, 240, 232, 0.15);
 }
