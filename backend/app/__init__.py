@@ -1,0 +1,78 @@
+import os
+from flask import Flask, send_from_directory, jsonify
+from config import Config
+from app.extensions import db, migrate, jwt, cors
+
+def create_app(config_class=Config):
+    app = Flask(__name__)
+    app.config.from_object(config_class)
+
+    # Ensure upload directory exists
+    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+    os.makedirs(os.path.join(app.config['UPLOAD_FOLDER'], 'products'), exist_ok=True)
+    os.makedirs(os.path.join(app.config['UPLOAD_FOLDER'], 'categories'), exist_ok=True)
+    os.makedirs(os.path.join(app.config['UPLOAD_FOLDER'], 'banners'), exist_ok=True)
+    os.makedirs(os.path.join(app.config['UPLOAD_FOLDER'], 'stores'), exist_ok=True)
+    os.makedirs(os.path.join(app.config['UPLOAD_FOLDER'], 'cafe'), exist_ok=True)
+
+    # Initialize extensions
+    db.init_init = False
+    db.init_app(app)
+    migrate.init_app(app, db)
+    jwt.init_app(app)
+    cors.init_app(app, resources={r"/api/*": {"origins": "*"}, r"/uploads/*": {"origins": "*"}})
+
+    # JWT Error Handlers
+    @jwt.unauthorized_loader
+    def unauthorized_callback(callback):
+        return jsonify({'error': 'Missing or invalid authentication token'}), 401
+
+    @jwt.expired_token_loader
+    def expired_token_callback(jwt_header, jwt_payload):
+        return jsonify({'error': 'Authentication token has expired'}), 401
+
+    @jwt.invalid_token_loader
+    def invalid_token_callback(callback):
+        return jsonify({'error': 'Invalid token verification'}), 401
+
+    # Serve static uploaded media files
+    @app.route('/uploads/<path:filename>')
+    def serve_uploaded_file(filename):
+        return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
+    # Register Blueprints
+    from app.routes.auth import auth_bp
+    from app.routes.products import products_bp
+    from app.routes.categories import categories_bp
+    from app.routes.orders import orders_bp
+    from app.routes.admin import admin_bp
+    from app.routes.stores import stores_bp
+    from app.routes.banners import banners_bp
+    from app.routes.cafe_menu import cafe_bp
+    from app.routes.settings import settings_bp
+
+    app.register_blueprint(auth_bp)
+    app.register_blueprint(products_bp)
+    app.register_blueprint(categories_bp)
+    app.register_blueprint(orders_bp)
+    app.register_blueprint(admin_bp)
+    app.register_blueprint(stores_bp)
+    app.register_blueprint(banners_bp)
+    app.register_blueprint(cafe_bp)
+    app.register_blueprint(settings_bp)
+
+    # API Root check
+    @app.route('/api/health')
+    def health_check():
+        return jsonify({'status': 'ok', 'service': 'Coffee Bean & Tea API', 'version': '1.0.0'}), 200
+
+    # Global error handlers
+    @app.errorhandler(404)
+    def not_found(e):
+        return jsonify({'error': 'The requested resource was not found'}), 404
+
+    @app.errorhandler(500)
+    def internal_error(e):
+        return jsonify({'error': 'Internal server error'}), 500
+
+    return app

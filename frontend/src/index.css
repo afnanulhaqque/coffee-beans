@@ -1,0 +1,121 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --color-espresso: #24150F;
+    --color-roast: #5A3825;
+    --color-caramel: #B8895B;
+    --color-cream: #F6F1E9;
+    --color-sand: #EDE4D8;
+    --color-dark: #1C1714;
+    --color-muted: #756A62;
+  }
+
+  body {
+    background-color: var(--color-cream);
+    color: var(--color-dark);
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    overflow-x: hidden;
+  }
+
+  /* DM Serif Display for primary major headings */
+  h1, h2, .font-heading, .font-serif-luxury {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-weight: 400;
+    letter-spacing: -0.02em;
+  }
+}
+
+/* Typography Family Classes */
+.font-display {
+  font-family: 'DM Serif Display', Georgia, serif;
+  font-weight: 400;
+}
+
+.font-body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+/* Custom Utilities for Luxury Editorial Layouts */
+.bg-espresso {
+  background-color: #24150F;
+}
+
+.text-espresso {
+  color: #24150F;
+}
+
+.bg-roast {
+  background-color: #5A3825;
+}
+
+.text-roast {
+  color: #5A3825;
+}
+
+.bg-caramel {
+  background-color: #B8895B;
+}
+
+.text-caramel {
+  color: #B8895B;
+}
+
+.border-caramel {
+  border-color: #B8895B;
+}
+
+.bg-cream {
+  background-color: #F6F1E9;
+}
+
+.bg-sand {
+  background-color: #EDE4D8;
+}
+
+.text-muted-coffee {
+  color: #756A62;
+}
+
+/* Smooth Image Zoom on Card Hover */
+.group:hover .product-image-zoom {
+  transform: scale(1.05);
+}
+
+.product-image-zoom {
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Subtle Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #F6F1E9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #D8CCC0;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #B8895B;
+}
+
+/* Smooth Transitions */
+.transition-luxury {
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Editorial subtle border */
+.border-editorial {
+  border-color: rgba(36, 21, 15, 0.1);
+}
+
+.border-editorial-dark {
+  border-color: rgba(246, 241, 233, 0.12);
+}
