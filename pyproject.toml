@@ -16,4 +16,4 @@ dependencies = [
 requires-python = ">=3.10"
 
 [tool.vercel]
-entrypoint = "backend.index:app"
+entrypoint = "api.index:app"
