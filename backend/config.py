@@ -28,9 +28,11 @@ class Config:
         
         # Check potential source database locations
         candidate_dbs = [
+            os.path.join(ROOT_DIR, 'api', 'coffee_store.db'),
             os.path.join(BASE_DIR, 'coffee_store.db'),
             os.path.join(ROOT_DIR, 'backend', 'coffee_store.db'),
-            os.path.join(ROOT_DIR, 'coffee_store.db')
+            os.path.join(ROOT_DIR, 'coffee_store.db'),
+            os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'api', 'coffee_store.db')
         ]
         
         src_db = None

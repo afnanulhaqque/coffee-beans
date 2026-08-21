@@ -31,24 +31,3 @@ def seed_data(session=None):
             session.add(Setting(key=k, value=v, group="general"))
 
     session.commit()
-
-    # 3. Seed Full Official Catalogs if database is fresh / unseeded
-    if Product.query.count() < 100 or Store.query.count() < 30:
-        try:
-            backend_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-            scripts_dir = os.path.join(backend_dir, 'scripts')
-            if scripts_dir not in sys.path:
-                sys.path.insert(0, scripts_dir)
-
-            import seed_coffee_catalog
-            import seed_tea_and_cake_catalog
-            import seed_all_modules
-
-            if hasattr(seed_coffee_catalog, 'seed_database'):
-                seed_coffee_catalog.seed_database()
-            if hasattr(seed_tea_and_cake_catalog, 'seed_catalogs'):
-                seed_tea_and_cake_catalog.seed_catalogs()
-            if hasattr(seed_all_modules, 'seed_all'):
-                seed_all_modules.seed_all()
-        except Exception as e:
-            print(f"[SEEDER WARNING] Auto-seed execution encountered: {e}")
