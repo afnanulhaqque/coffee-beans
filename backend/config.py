@@ -14,7 +14,14 @@ class Config:
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(days=7)
     
     # Serverless runtime detection (Vercel, AWS Lambda)
-    IS_SERVERLESS = bool(os.environ.get('VERCEL') or os.environ.get('AWS_LAMBDA_FUNCTION_NAME'))
+    IS_SERVERLESS = bool(
+        os.environ.get('VERCEL') or
+        os.environ.get('VERCEL_ENV') or
+        os.environ.get('VERCEL_REGION') or
+        os.environ.get('AWS_LAMBDA_FUNCTION_NAME') or
+        os.environ.get('LAMBDA_TASK_ROOT') or
+        os.path.exists('/var/task')
+    )
 
     # Database URL configuration
     _db_url = os.environ.get('DATABASE_URL')
@@ -26,31 +33,40 @@ class Config:
     elif IS_SERVERLESS:
         tmp_db = os.path.join('/tmp', 'coffee_store.db')
         
-        # Check potential source database locations
+        # Check all potential bundled database locations on Vercel / Lambda
         candidate_dbs = [
-            os.path.join(ROOT_DIR, 'api', 'coffee_store.db'),
             os.path.join(BASE_DIR, 'coffee_store.db'),
             os.path.join(ROOT_DIR, 'backend', 'coffee_store.db'),
+            os.path.join(ROOT_DIR, 'api', 'coffee_store.db'),
             os.path.join(ROOT_DIR, 'coffee_store.db'),
+            os.path.join('/var', 'task', 'backend', 'coffee_store.db'),
+            os.path.join('/var', 'task', 'api', 'coffee_store.db'),
+            os.path.join('/var', 'task', 'coffee_store.db'),
             os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'api', 'coffee_store.db')
         ]
         
         src_db = None
         for cand in candidate_dbs:
-            if os.path.exists(cand) and os.path.getsize(cand) > 10000:
-                src_db = cand
-                break
+            try:
+                if os.path.exists(cand) and os.path.getsize(cand) > 1000:
+                    src_db = cand
+                    break
+            except Exception:
+                continue
 
         if src_db:
             try:
-                if not os.path.exists(tmp_db) or os.path.getsize(tmp_db) < 10000:
+                # Copy to /tmp if not exists or if size is smaller
+                if not os.path.exists(tmp_db) or os.path.getsize(tmp_db) < 1000:
                     shutil.copy2(src_db, tmp_db)
             except Exception as e:
                 print(f"Error copying DB to /tmp: {e}")
 
         SQLALCHEMY_DATABASE_URI = f"sqlite:///{tmp_db}"
     else:
-        SQLALCHEMY_DATABASE_URI = f"sqlite:///{os.path.join(BASE_DIR, 'coffee_store.db')}"
+        # Local development database in backend folder
+        local_db_path = os.path.join(BASE_DIR, 'coffee_store.db')
+        SQLALCHEMY_DATABASE_URI = f"sqlite:///{local_db_path}"
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
