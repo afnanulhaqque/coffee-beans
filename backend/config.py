@@ -13,6 +13,13 @@ class Config:
     JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY', 'jwt-super-secret-coffee-bean-key-2026')
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(days=7)
     
+    # Supabase Server Credentials
+    SUPABASE_URL = os.environ.get('SUPABASE_URL', '')
+    SUPABASE_PUBLISHABLE_KEY = os.environ.get('SUPABASE_PUBLISHABLE_KEY', '')
+    SUPABASE_SECRET_KEY = os.environ.get('SUPABASE_SECRET_KEY', '')
+    SUPABASE_JWKS_URL = os.environ.get('SUPABASE_JWKS_URL', '')
+
+    
     # Serverless runtime detection (Vercel, AWS Lambda)
     IS_SERVERLESS = bool(
         os.environ.get('VERCEL') or

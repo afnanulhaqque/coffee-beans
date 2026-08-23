@@ -28,12 +28,12 @@ export default function Coffee() {
     const fetchCatalog = async () => {
       setLoading(true);
       try {
-        const res = await api.get('/products?limit=100');
-        // Filter products that belong to Coffee category or subcategories
+        const res = await api.get('/products?type=coffee&limit=100');
         const list = (res.data.products || []).filter((p) => {
+          if (p.product_type === 'coffee') return true;
           const cat = (p.category_name || p.category || '').toLowerCase();
           const catSlug = (p.category_slug || '').toLowerCase();
-          const isCoffeeCat = [
+          return [
             'coffee',
             'light & distinctive',
             'rich & smooth',
@@ -44,9 +44,8 @@ export default function Coffee() {
             'dark & distinctive',
             'medium & smooth',
           ].some((c) => cat.includes(c) || catSlug.includes(c.replace(/ & /g, '-').replace(/ /g, '-')));
-          return isCoffeeCat;
         });
-        setProducts(list);
+        setProducts(list.length > 0 ? list : (res.data.products || []));
       } catch (err) {
         console.error('Failed to load official coffee catalog', err);
       } finally {
@@ -96,10 +95,7 @@ export default function Coffee() {
       result = result.filter((p) => {
         const catSlug = (p.category_slug || '').toLowerCase();
         const catName = (p.category_name || p.category || '').toLowerCase();
-        const targetSlug = selectedCategory.toLowerCase();
-        const targetName = (CATEGORIES.find((c) => c.slug === selectedCategory)?.label || '').toLowerCase();
-
-        return catSlug === targetSlug || catName === targetName;
+        return catSlug === targetSlug || catName === targetName || (p.roast_level || '').toLowerCase().includes(targetName) || (p.flavor_profile || '').toLowerCase().includes(targetName);
       });
     }
 

@@ -12,8 +12,10 @@ ENV/
 
 # Environment Variables
 .env
+.env.*
 .env.local
-.env.*.local
+.env.production
+
 
 # Production Build
 dist-ssr/
