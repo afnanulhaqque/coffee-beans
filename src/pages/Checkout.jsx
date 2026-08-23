@@ -389,7 +389,7 @@ export default function Checkout() {
                   {stores.length > 0 ? (
                     stores.map((s) => (
                       <option key={s.id} value={s.id}>
-                        {s.name} — {s.address}, {s.city} ({s.opening_hours})
+                        {s.name} — {s.address}, {s.city} ({typeof s.opening_hours === 'string' ? s.opening_hours : '8:00 AM - 1:00 AM'})
                       </option>
                     ))
                   ) : (

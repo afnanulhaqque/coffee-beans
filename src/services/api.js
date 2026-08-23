@@ -228,27 +228,54 @@ async function fetchFromSupabase(url, config = {}) {
 
   // 4. /stores
   if (cleanUrl === 'stores') {
-    let query = supabase.from('stores').select('*').eq('is_active', true).order('id', { ascending: true });
+    let query = supabase.from('stores').select('*').order('id', { ascending: true });
+    if (!params.all) {
+      query = query.eq('is_active', true);
+    }
     if (params.city && params.city !== 'all') {
-      query = query.eq('city', params.city);
+      query = query.ilike('city', `%${params.city}%`);
+    }
+    if (params.search) {
+      query = query.or(`name.ilike.%${params.search}%,address.ilike.%${params.search}%,city.ilike.%${params.search}%,phone.ilike.%${params.search}%`);
     }
     const { data: storesList, error: sErr } = await query;
     if (sErr) throw sErr;
 
     // Fetch opening hours
-    const { data: hoursList } = await supabase.from('store_opening_hours').select('*');
-    const hoursMap = {};
-    (hoursList || []).forEach((h) => {
-      if (!hoursMap[h.store_id]) hoursMap[h.store_id] = [];
-      hoursMap[h.store_id].push(h);
-    });
+    let hoursMap = {};
+    try {
+      const { data: hoursList } = await supabase.from('store_opening_hours').select('*');
+      (hoursList || []).forEach((h) => {
+        if (!hoursMap[h.store_id]) hoursMap[h.store_id] = [];
+        hoursMap[h.store_id].push(h);
+      });
+    } catch (e) {
+      console.warn('Could not fetch store opening hours schedules', e);
+    }
 
-    const enrichedStores = (storesList || []).map((s) => ({
-      ...s,
-      opening_hours: hoursMap[s.id] || [],
-      hours: hoursMap[s.id] || [],
-      city: s.city || 'Islamabad',
-    }));
+    const enrichedStores = (storesList || []).map((s) => {
+      const defaultHours = typeof s.opening_hours === 'string' && s.opening_hours.trim() 
+        ? s.opening_hours.trim() 
+        : '8:00 AM - 1:00 AM';
+      const mapsUrl = s.google_maps_url || (
+        s.latitude && s.longitude
+          ? `https://www.google.com/maps/search/?api=1&query=${s.latitude},${s.longitude}`
+          : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((s.name || '') + ' ' + (s.address || '') + ' ' + (s.city || ''))}`
+      );
+
+      return {
+        ...s,
+        opening_hours: defaultHours,
+        schedules: hoursMap[s.id] || [],
+        current_status: {
+          is_open: s.is_active !== false,
+          status_text: `Open (${defaultHours})`,
+          badge: 'Open',
+        },
+        google_maps_url: mapsUrl,
+        city: s.city || 'Islamabad',
+      };
+    });
 
     const distinctCities = [...new Set(enrichedStores.map((s) => s.city).filter(Boolean))];
 

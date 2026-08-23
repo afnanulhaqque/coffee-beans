@@ -143,9 +143,13 @@ export default function App() {
 
               {/* Store Locator */}
               <Route path="stores" element={<Stores />} />
+              <Route path="store" element={<Stores />} />
+              <Route path="our-stores" element={<Stores />} />
+              <Route path="our-store" element={<Stores />} />
               <Route path="store-locator" element={<Stores />} />
               <Route path="store-locator/:slug" element={<Stores />} />
               <Route path="locations" element={<Stores />} />
+              <Route path="store-locations" element={<Stores />} />
 
               {/* Brand Heritage & Contact */}
               <Route path="our-coffee" element={<OurCoffee />} />

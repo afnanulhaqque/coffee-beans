@@ -6,20 +6,54 @@ import {
   Clock, 
   Navigation, 
   Compass, 
-  Check, 
   ChevronRight, 
   Wifi, 
   Car, 
   Utensils, 
   ShoppingBag,
-  Layers,
   List,
   Map as MapIcon,
-  ExternalLink
 } from 'lucide-react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import api from '../services/api';
+
+// Fallback Stores for CBTL Pakistan (33 official locations)
+const FALLBACK_STORES = [
+  { id: 7, name: 'F-11 Markaz', address: 'Shop 23, Olympus Mall, F-11 Markaz, Islamabad', city: 'Islamabad', phone: '051 8460200', opening_hours: '8:00 AM - 1:00 AM', latitude: 33.6844, longitude: 72.9885, province: 'Federal Capital', dine_in: true, takeaway: true, wifi: true, parking: true },
+  { id: 8, name: 'F-6 Markaz', address: 'Plot 16-A, Mountain View Plaza, F-6 Markaz, Islamabad', city: 'Islamabad', phone: '051 8467900', opening_hours: '8:00 AM - 1:00 AM', latitude: 33.7297, longitude: 73.0768, province: 'Federal Capital', dine_in: true, takeaway: true, wifi: true, parking: true },
+  { id: 9, name: 'I-8 Markaz', address: 'Plot # 17 & 18, I-8 Markaz, Islamabad', city: 'Islamabad', phone: '051 8892429', opening_hours: '8:00 AM - 1:00 AM', latitude: 33.6685, longitude: 73.0761, province: 'Federal Capital', dine_in: true, takeaway: true, wifi: true, parking: true },
+  { id: 10, name: 'Bahria Town Islamabad', address: 'Phase 7, Bahria Town Expressway, Islamabad', city: 'Islamabad', phone: '051 8355507', opening_hours: '8:00 AM - 1:00 AM', latitude: 33.5358, longitude: 73.1205, province: 'Federal Capital', dine_in: true, takeaway: true, wifi: true, parking: true },
+  { id: 11, name: 'Elysium Tower', address: 'Opposite Centaurus, Elysium Tower, Islamabad', city: 'Islamabad', phone: '051 6167272', opening_hours: '8:00 AM - 1:00 AM', latitude: 33.7081, longitude: 73.0519, province: 'Federal Capital', dine_in: true, takeaway: true, wifi: true, parking: true },
+  { id: 12, name: 'Zarpar Orchard D12', address: 'D12 Markaz, Islamabad', city: 'Islamabad', phone: '051 2750276', opening_hours: '8:00 AM - 1:00 AM', latitude: 33.7198, longitude: 72.9554, province: 'Federal Capital', dine_in: true, takeaway: true, wifi: true, parking: true },
+  { id: 13, name: 'PSO Capri F-7', address: 'Jinnah Super, F-7, Islamabad', city: 'Islamabad', phone: '051 2744984', opening_hours: '8:00 AM - 1:00 AM', latitude: 33.7215, longitude: 73.0558, province: 'Federal Capital', dine_in: true, takeaway: true, wifi: true, parking: true },
+  { id: 14, name: 'PSO Islamabad Expressway', address: 'PSO Islamabad Expressway, Islamabad', city: 'Islamabad', phone: '051 6107528', opening_hours: '8:00 AM - 1:00 AM', latitude: 33.6421, longitude: 73.1092, province: 'Federal Capital', dine_in: true, takeaway: true, wifi: true, parking: true },
+  { id: 15, name: 'AJ Towers', address: 'Gulberg Greens, Islamabad', city: 'Islamabad', phone: '051 8824934', opening_hours: '8:00 AM - 1:00 AM', latitude: 33.6062, longitude: 73.1345, province: 'Federal Capital', dine_in: true, takeaway: true, wifi: true, parking: true },
+  { id: 16, name: 'Civic Mall', address: 'Bahria Town, Phase 04, Islamabad', city: 'Islamabad', phone: '051 8460200', opening_hours: '8:00 AM - 1:00 AM', latitude: 33.5684, longitude: 73.1052, province: 'Federal Capital', dine_in: true, takeaway: true, wifi: true, parking: true },
+  { id: 17, name: 'Saddar Rawalpindi', address: 'Ground Floor, Madison Square Mall, Near GPO, Saddar, Rawalpindi', city: 'Rawalpindi', phone: '051 6162606', opening_hours: '8:00 AM - 1:00 AM', latitude: 33.5975, longitude: 73.0543, province: 'Punjab', dine_in: true, takeaway: true, wifi: true, parking: true },
+  { id: 18, name: 'Bahria Town Rawalpindi', address: 'Rizvi Plaza, Talwar Chowk, Bahria Town, Rawalpindi', city: 'Rawalpindi', phone: '051 8355507', opening_hours: '8:00 AM - 1:00 AM', latitude: 33.5412, longitude: 73.1167, province: 'Punjab', dine_in: true, takeaway: true, wifi: true, parking: true },
+  { id: 19, name: 'Gulberg Fountain', address: 'Avenue, Main Boulevard, Gulberg, Lahore', city: 'Lahore', phone: '042 38911007', opening_hours: '8:00 AM - 1:00 AM', latitude: 31.5204, longitude: 74.3587, province: 'Punjab', dine_in: true, takeaway: true, wifi: true, parking: true },
+  { id: 20, name: 'Packages Mall', address: 'Walton Road, Packages Mall, Lahore', city: 'Lahore', phone: '042 38912490', opening_hours: '8:00 AM - 1:00 AM', latitude: 31.4744, longitude: 74.3592, province: 'Punjab', dine_in: true, takeaway: true, wifi: true, parking: true },
+  { id: 21, name: 'DHA Phase 5', address: 'Plot 20-A, Commercial Area, Main Boulevard, DHA Phase 5, Lahore', city: 'Lahore', phone: '042 37182933', opening_hours: '8:00 AM - 1:00 AM', latitude: 31.4645, longitude: 74.4089, province: 'Punjab', dine_in: true, takeaway: true, wifi: true, parking: true },
+  { id: 22, name: 'Phase 2 Johar Town', address: 'Block N, Phase 2, Johar Town, Lahore', city: 'Lahore', phone: '042 32290489', opening_hours: '8:00 AM - 1:00 AM', latitude: 31.4697, longitude: 74.2728, province: 'Punjab', dine_in: true, takeaway: true, wifi: true, parking: true },
+  { id: 23, name: 'Thokar Niaz Baig', address: 'Attock Fuel Station, Thokar Niaz Baig, Lahore', city: 'Lahore', phone: '042 32800004', opening_hours: '8:00 AM - 1:00 AM', latitude: 31.4702, longitude: 74.2384, province: 'Punjab', dine_in: true, takeaway: true, wifi: true, parking: true },
+  { id: 24, name: 'Downtown Hotel & Residences', address: 'Liberty Roundabout, Downtown Hotel & Residences, Lahore', city: 'Lahore', phone: '042 37897444', opening_hours: '8:00 AM - 1:00 AM', latitude: 31.5126, longitude: 74.3438, province: 'Punjab', dine_in: true, takeaway: true, wifi: true, parking: true },
+  { id: 25, name: 'PSO Girja Chowk', address: 'PSO, Girja Chowk, Cantt, Lahore', city: 'Lahore', phone: '042 37250399', opening_hours: '8:00 AM - 1:00 AM', latitude: 31.5497, longitude: 74.3912, province: 'Punjab', dine_in: true, takeaway: true, wifi: true, parking: true },
+  { id: 26, name: 'Defense Raya', address: '85 Fairways Commercial, DHA Phase VI, Lahore', city: 'Lahore', phone: '042 34551243', opening_hours: '8:00 AM - 1:00 AM', latitude: 31.4398, longitude: 74.4532, province: 'Punjab', dine_in: true, takeaway: true, wifi: true, parking: true },
+  { id: 27, name: 'Bahria Town Lahore', address: 'Rizvi Plaza, Talwar Chowk, Bahria Town, Lahore', city: 'Lahore', phone: '042 37450703', opening_hours: '8:00 AM - 1:00 AM', latitude: 31.3687, longitude: 74.1812, province: 'Punjab', dine_in: true, takeaway: true, wifi: true, parking: true },
+  { id: 28, name: 'Lake City', address: 'Block M 1, Lake City, Lahore', city: 'Lahore', phone: '042 32321422', opening_hours: '8:00 AM - 1:00 AM', latitude: 31.3854, longitude: 74.2498, province: 'Punjab', dine_in: true, takeaway: true, wifi: true, parking: true },
+  { id: 29, name: 'Z Block DHA Phase III', address: 'Z Block Commercial Area, DHA Phase III, Lahore', city: 'Lahore', phone: '042 34551932', opening_hours: '8:00 AM - 1:00 AM', latitude: 31.4795, longitude: 74.3854, province: 'Punjab', dine_in: true, takeaway: true, wifi: true, parking: true },
+  { id: 30, name: 'DHA Phase 6 Karachi', address: '12-C, Main Khayaban-e-Bukhari, DHA Phase 6, Karachi', city: 'Karachi', phone: '021 33399587', opening_hours: '8:00 AM - 1:00 AM', latitude: 24.7932, longitude: 67.0654, province: 'Sindh', dine_in: true, takeaway: true, wifi: true, parking: true },
+  { id: 31, name: 'Marine Tower', address: 'Plot # 9, Block 4, Clifton, Karachi', city: 'Karachi', phone: '021 33393383', opening_hours: '8:00 AM - 1:00 AM', latitude: 24.8189, longitude: 67.0287, province: 'Sindh', dine_in: true, takeaway: true, wifi: true, parking: true },
+  { id: 32, name: 'Tipu Sultan', address: 'Remmco Tower, Tipu Sultan Road, Karachi', city: 'Karachi', phone: '021 33406562', opening_hours: '8:00 AM - 1:00 AM', latitude: 24.8698, longitude: 67.0854, province: 'Sindh', dine_in: true, takeaway: true, wifi: true, parking: true },
+  { id: 33, name: 'Byco Sea View', address: 'DHA V, Karachi', city: 'Karachi', phone: '021 33409134', opening_hours: '8:00 AM - 1:00 AM', latitude: 24.7895, longitude: 67.0421, province: 'Sindh', dine_in: true, takeaway: true, wifi: true, parking: true },
+  { id: 34, name: 'Faisalabad', address: '7th Faisal Lane, Civil Lines, Adjacent Sitara Tower, Faisalabad', city: 'Faisalabad', phone: '041 5486161', opening_hours: '8:00 AM - 1:00 AM', latitude: 31.4187, longitude: 73.0791, province: 'Punjab', dine_in: true, takeaway: true, wifi: true, parking: true },
+  { id: 35, name: 'Mall of Gujranwala', address: 'Grand Trunk Road, Mall of Gujranwala', city: 'Gujranwala', phone: '055 8026182', opening_hours: '8:00 AM - 1:00 AM', latitude: 32.1876, longitude: 74.1945, province: 'Punjab', dine_in: true, takeaway: true, wifi: true, parking: true },
+  { id: 36, name: 'Jhelum', address: 'G.T Road, Adjacent Tulip Hotel, Jhelum', city: 'Jhelum', phone: '0544 620000', opening_hours: '8:00 AM - 1:00 AM', latitude: 32.9405, longitude: 73.7276, province: 'Punjab', dine_in: true, takeaway: true, wifi: true, parking: true },
+  { id: 37, name: 'Murree', address: 'Lower Topa, Murree Expressway', city: 'Murree', phone: '051 8460200', opening_hours: '8:00 AM - 1:00 AM', latitude: 33.8954, longitude: 73.4187, province: 'Punjab', dine_in: true, takeaway: true, wifi: true, parking: true },
+  { id: 38, name: 'Bhera Service Area', address: 'Bhera Service Area, North & South, M-2 Motorway', city: 'Bhera', phone: '051 8460200', opening_hours: '24 Hours', latitude: 32.4821, longitude: 72.9154, province: 'Punjab', dine_in: true, takeaway: true, wifi: true, parking: true },
+  { id: 39, name: 'Sialkot Cantonment', address: 'Aziz Bhatti Shaheed Road, Sialkot Cantonment, Sialkot', city: 'Sialkot', phone: '052 4292949', opening_hours: '8:00 AM - 1:00 AM', latitude: 32.5087, longitude: 74.5387, province: 'Punjab', dine_in: true, takeaway: true, wifi: true, parking: true },
+];
 
 // Custom Map Marker Icon for CBTL
 const createCustomMarker = (isSelected = false) => {
@@ -70,6 +104,7 @@ export default function Stores() {
 
   // Fetch initial stores and cities
   useEffect(() => {
+    let isMounted = true;
     const fetchStores = async () => {
       setLoading(true);
       try {
@@ -82,25 +117,83 @@ export default function Stores() {
         }
 
         const res = await api.get('/stores', { params });
-        setStores(res.data.stores || []);
-        if (res.data.cities && res.data.cities.length > 0) {
-          setCities(res.data.cities);
+        let loadedStores = res?.data?.stores || [];
+        
+        // If API returns empty, use client fallback list
+        if (!loadedStores || loadedStores.length === 0) {
+          loadedStores = FALLBACK_STORES;
+          if (activeCity !== 'all') {
+            loadedStores = loadedStores.filter(s => s.city.toLowerCase() === activeCity.toLowerCase());
+          }
+          if (searchQuery.trim()) {
+            const q = searchQuery.trim().toLowerCase();
+            loadedStores = loadedStores.filter(s => 
+              (s.name && s.name.toLowerCase().includes(q)) ||
+              (s.address && s.address.toLowerCase().includes(q)) ||
+              (s.city && s.city.toLowerCase().includes(q)) ||
+              (s.phone && s.phone.toLowerCase().includes(q))
+            );
+          }
+        }
+
+        if (isMounted) {
+          setStores(loadedStores);
+          const distinctCities = res?.data?.cities && res.data.cities.length > 0 
+            ? res.data.cities 
+            : [...new Set(FALLBACK_STORES.map(s => s.city))].sort();
+          setCities(distinctCities);
         }
       } catch (err) {
-        console.error('Failed to load store locations', err);
+        console.error('Failed to load store locations, using fallbacks', err);
+        if (isMounted) {
+          let fallback = FALLBACK_STORES;
+          if (activeCity !== 'all') {
+            fallback = fallback.filter(s => s.city.toLowerCase() === activeCity.toLowerCase());
+          }
+          if (searchQuery.trim()) {
+            const q = searchQuery.trim().toLowerCase();
+            fallback = fallback.filter(s => 
+              (s.name && s.name.toLowerCase().includes(q)) ||
+              (s.address && s.address.toLowerCase().includes(q)) ||
+              (s.city && s.city.toLowerCase().includes(q))
+            );
+          }
+          setStores(fallback);
+          setCities([...new Set(FALLBACK_STORES.map(s => s.city))].sort());
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
     fetchStores();
+    return () => {
+      isMounted = false;
+    };
   }, [activeCity, searchQuery, userLocation]);
+
+  // Clean up Leaflet map instance on component unmount
+  useEffect(() => {
+    return () => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+      }
+    };
+  }, []);
 
   // Initialize and update Leaflet map
   useEffect(() => {
     if (!mapRef.current) return;
 
+    // Check if DOM container already has Leaflet ID attached (e.g. from hot-reloads)
     if (!mapInstanceRef.current) {
+      if (mapRef.current._leaflet_id) {
+        delete mapRef.current._leaflet_id;
+      }
+
       // Center of Pakistan (Islamabad / Lahore region)
       const map = L.map(mapRef.current, {
         center: [33.7297, 73.0768],
@@ -119,6 +212,13 @@ export default function Stores() {
 
     const map = mapInstanceRef.current;
 
+    // Invalidate map size after mobile view toggle or layout render
+    const timer = setTimeout(() => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.invalidateSize();
+      }
+    }, 150);
+
     // Clear existing markers
     Object.values(markersRef.current).forEach((marker) => marker.remove());
     markersRef.current = {};
@@ -128,20 +228,26 @@ export default function Stores() {
 
     validStores.forEach((store) => {
       const isSelected = selectedStore && selectedStore.id === store.id;
-      const marker = L.marker([store.latitude, store.longitude], {
+      const lat = Number(store.latitude);
+      const lng = Number(store.longitude);
+      if (isNaN(lat) || isNaN(lng)) return;
+
+      const marker = L.marker([lat, lng], {
         icon: createCustomMarker(isSelected),
       }).addTo(map);
+
+      const googleMapsLink = store.google_maps_url || `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
 
       // Popup Content
       const popupContent = document.createElement('div');
       popupContent.className = 'font-body p-2 space-y-1.5 text-xs text-[#2A1B17]';
       popupContent.innerHTML = `
-        <span class="text-[9px] uppercase tracking-wider font-bold text-[#4B274F] block">${store.city}</span>
-        <h4 class="font-display font-bold text-sm text-[#351B38] m-0">${store.name}</h4>
+        <span class="text-[9px] uppercase tracking-wider font-bold text-[#4B274F] block">${store.city || ''}</span>
+        <h4 class="font-display font-bold text-sm text-[#351B38] m-0">${store.name || ''}</h4>
         <p class="text-[11px] text-[#6B4A3A] m-0">${store.address || 'Address available in store list'}</p>
         ${store.phone ? `<p class="text-[11px] font-semibold text-[#4B274F] m-0">📞 ${store.phone}</p>` : ''}
         <div class="pt-2">
-          <a href="${store.google_maps_url}" target="_blank" rel="noopener noreferrer" 
+          <a href="${googleMapsLink}" target="_blank" rel="noopener noreferrer" 
              style="display: inline-block; background-color: #4B274F; color: #ffffff; padding: 4px 8px; border-radius: 4px; font-weight: bold; text-transform: uppercase; font-size: 9px; text-decoration: none;">
             Get Directions
           </a>
@@ -154,19 +260,25 @@ export default function Stores() {
       });
 
       markersRef.current[store.id] = marker;
-      bounds.extend([store.latitude, store.longitude]);
+      bounds.extend([lat, lng]);
     });
 
-    if (validStores.length > 0 && !selectedStore) {
+    if (validStores.length > 0 && !selectedStore && bounds.isValid()) {
       map.fitBounds(bounds, { padding: [40, 40], maxZoom: 13 });
     }
-  }, [stores, selectedStore]);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [stores, selectedStore, mobileView]);
 
   // Handle store card selection
   const handleSelectStore = (store) => {
     setSelectedStore(store);
-    if (store.latitude && store.longitude && mapInstanceRef.current) {
-      mapInstanceRef.current.setView([store.latitude, store.longitude], 15, {
+    const lat = Number(store.latitude);
+    const lng = Number(store.longitude);
+    if (!isNaN(lat) && !isNaN(lng) && mapInstanceRef.current) {
+      mapInstanceRef.current.setView([lat, lng], 15, {
         animate: true,
         duration: 0.8,
       });
@@ -351,6 +463,17 @@ export default function Stores() {
               {stores.map((store) => {
                 const isSelected = selectedStore && selectedStore.id === store.id;
                 const status = store.current_status || {};
+                const hoursText = typeof status.status_text === 'string' && status.status_text
+                  ? status.status_text
+                  : typeof store.opening_hours === 'string' && store.opening_hours
+                  ? store.opening_hours
+                  : '8:00 AM - 1:00 AM';
+
+                const mapsUrl = store.google_maps_url || (
+                  store.latitude && store.longitude
+                    ? `https://www.google.com/maps/search/?api=1&query=${store.latitude},${store.longitude}`
+                    : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((store.name || '') + ' ' + (store.address || '') + ' ' + (store.city || ''))}`
+                );
 
                 return (
                   <div
@@ -375,9 +498,9 @@ export default function Stores() {
 
                       <div className="text-right shrink-0">
                         <span className={`px-2 py-0.5 text-[9px] uppercase tracking-wider font-bold rounded-xs ${
-                          status.is_open ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-red-50 text-red-800 border border-red-200'
+                          status.is_open !== false ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-red-50 text-red-800 border border-red-200'
                         }`}>
-                          {status.badge || (status.is_open ? 'Open' : 'Closed')}
+                          {status.badge || (status.is_open !== false ? 'Open' : 'Closed')}
                         </span>
                         {store.distance_km !== null && store.distance_km !== undefined && (
                           <span className="text-[11px] font-bold text-[#4B274F] block mt-1">
@@ -410,7 +533,7 @@ export default function Stores() {
                       <div className="flex items-center gap-2">
                         <Clock className="w-3.5 h-3.5 text-[#4B274F] shrink-0" />
                         <span className="font-medium text-[#2A1B17]">
-                          {status.status_text || store.opening_hours || '8:00 AM - 1:00 AM'}
+                          {hoursText}
                         </span>
                       </div>
                     </div>
@@ -450,7 +573,7 @@ export default function Stores() {
                       </button>
 
                       <a
-                        href={store.google_maps_url}
+                        href={mapsUrl}
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={(e) => e.stopPropagation()}
