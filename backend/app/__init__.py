@@ -1,11 +1,31 @@
 import os
-from flask import Flask, send_from_directory, jsonify
+from flask import Flask, send_from_directory, render_template, jsonify, request
 from config import Config
 from app.extensions import db, migrate, jwt, cors
 
 def create_app(config_class=Config):
-    app = Flask(__name__)
+    # Determine dist folder for serving React Frontend
+    base_dir = os.path.abspath(os.path.dirname(__file__))
+    dist_dir = os.path.abspath(os.path.join(base_dir, '..', '..', 'dist'))
+    if not os.path.exists(dist_dir):
+        dist_dir = os.path.abspath(os.path.join(base_dir, '..', 'dist'))
+
+    assets_dir = os.path.join(dist_dir, 'assets')
+
+    # Initialize Flask with Jinja2 template caching & static asset delivery
+    app = Flask(
+        __name__,
+        template_folder=dist_dir,
+        static_folder=assets_dir if os.path.exists(assets_dir) else None,
+        static_url_path='/assets'
+    )
     app.config.from_object(config_class)
+
+    # Jinja2 Performance Optimization: enable template caching and bytecode compilation
+    app.jinja_env.auto_reload = False
+    app.jinja_env.cache = {}
+    app.jinja_env.trim_blocks = True
+    app.jinja_env.lstrip_blocks = True
 
     # Ensure upload directory exists (safe for read-only / serverless environments)
     try:
@@ -23,6 +43,26 @@ def create_app(config_class=Config):
     migrate.init_app(app, db)
     jwt.init_app(app)
     cors.init_app(app, resources={r"/api/*": {"origins": "*"}, r"/uploads/*": {"origins": "*"}})
+
+    # Performance & Cache-Control Headers Middleware
+    @app.after_request
+    def add_performance_headers(response):
+        path = request.path
+        if path.startswith('/assets/'):
+            # 1-year immutable caching for fingerprinted static assets
+            response.headers['Cache-Control'] = 'public, max-age=31536000, immutable'
+        elif path.startswith('/api/'):
+            # Prevent stale JSON responses for dynamic API requests
+            response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+        elif path.startswith('/uploads/'):
+            # Cache uploaded images for 1 week
+            response.headers['Cache-Control'] = 'public, max-age=604800'
+        else:
+            # HTML SPA shell: fast validation cache
+            response.headers['Cache-Control'] = 'public, max-age=0, must-revalidate'
+
+        response.headers['X-Content-Type-Options'] = 'nosniff'
+        return response
 
     # JWT Error Handlers
     @jwt.unauthorized_loader
@@ -77,21 +117,14 @@ def create_app(config_class=Config):
         except Exception as e:
             app.logger.warning(f"Database auto-creation/seed warning: {e}")
 
-    # Determine dist folder for serving React Frontend
-    base_dir = os.path.abspath(os.path.dirname(__file__))
-    dist_dir = os.path.abspath(os.path.join(base_dir, '..', 'dist'))
-    if not os.path.exists(dist_dir):
-        dist_dir = os.path.abspath(os.path.join(base_dir, '..', '..', 'frontend', 'dist'))
-
     # Serve assets folder
     @app.route('/assets/<path:filename>')
     def serve_assets(filename):
-        assets_dir = os.path.join(dist_dir, 'assets')
         if os.path.exists(os.path.join(assets_dir, filename)):
             return send_from_directory(assets_dir, filename)
         return jsonify({'error': 'Asset not found'}), 404
 
-    # Serve React Frontend SPA for all other web routes
+    # Serve React Frontend SPA using fast cached Jinja2 template rendering
     @app.route('/', defaults={'path': ''})
     @app.route('/<path:path>')
     def serve_spa(path):
@@ -103,10 +136,10 @@ def create_app(config_class=Config):
         if path and os.path.exists(target_file) and not os.path.isdir(target_file):
             return send_from_directory(dist_dir, path)
 
-        # Serve index.html for SPA routing
+        # High-speed pre-compiled Jinja2 template rendering
         index_file = os.path.join(dist_dir, 'index.html')
         if os.path.exists(index_file):
-            return send_from_directory(dist_dir, 'index.html')
+            return render_template('index.html')
 
         return jsonify({
             'service': 'The Coffee Bean & Tea Leaf API',
