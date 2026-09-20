@@ -175,15 +175,9 @@ def create_app(config_class=Config):
                 'service': 'The Coffee Bean & Tea Leaf API',
                 'status': 'online',
                 'received_path': path,
-                'endpoints': {
-                    'health': '/api/health',
-                    'products': '/api/products',
-                    'categories': '/api/categories',
-                    'stores': '/api/stores',
-                    'cafe_menu': '/api/cafe-menu',
-                    'banners': '/api/banners',
-                    'settings': '/api/settings'
-                }
+                'request_path': request.path,
+                'headers': {k: v for k, v in request.headers.items() if 'auth' not in k.lower() and 'cookie' not in k.lower()},
+                'args': dict(request.args)
             }), 200
 
     # Global error handlers
