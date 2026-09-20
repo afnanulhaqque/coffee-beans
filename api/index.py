@@ -32,9 +32,13 @@ class VercelPathMiddleware:
         qs = environ.get('QUERY_STRING', '')
         if '__path__=' in qs:
             params = urllib.parse.parse_qs(qs, keep_blank_values=True)
-            if '__path__' in params and params['__path__']:
-                p = params['__path__'][0].lstrip('/')
-                environ['PATH_INFO'] = f'/api/{p}' if not p.startswith('api/') else f'/{p}'
+            if '__path__' in params:
+                raw_path = params['__path__'][0] if params['__path__'] else ''
+                p = raw_path.lstrip('/')
+                if p:
+                    environ['PATH_INFO'] = f'/api/{p}' if not p.startswith('api/') else f'/{p}'
+                else:
+                    environ['PATH_INFO'] = '/api'
                 del params['__path__']
                 environ['QUERY_STRING'] = urllib.parse.urlencode(params, doseq=True)
         return self.wsgi_app(environ, start_response)

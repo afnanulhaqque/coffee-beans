@@ -120,6 +120,33 @@ def create_app(config_class=Config):
     def health_check():
         return jsonify({'status': 'ok', 'service': 'Coffee Bean & Tea API', 'version': '1.0.0'}), 200
 
+    @app.route('/api')
+    @app.route('/api/')
+    def api_root():
+        db_status = "connected"
+        product_count = 0
+        try:
+            from app.models.product import Product
+            product_count = Product.query.count()
+        except Exception as e:
+            db_status = f"error: {str(e)}"
+
+        return jsonify({
+            'service': 'The Coffee Bean & Tea Leaf API',
+            'status': 'online',
+            'database': db_status,
+            'products_count': product_count,
+            'endpoints': {
+                'health': '/api/health',
+                'products': '/api/products',
+                'categories': '/api/categories',
+                'stores': '/api/stores',
+                'cafe_menu': '/api/cafe-menu',
+                'banners': '/api/banners',
+                'settings': '/api/settings'
+            }
+        }), 200
+
     # Auto-initialize database tables and seed if empty safely
     with app.app_context():
         try:
@@ -154,9 +181,18 @@ def create_app(config_class=Config):
             if os.path.exists(index_file):
                 return render_template('index.html')
 
+            return api_root()
+    else:
+        @app.route('/', defaults={'path': ''})
+        @app.route('/<path:path>')
+        def api_catchall(path):
+            clean_path = path.strip('/')
+            if not clean_path or clean_path == 'api':
+                return api_root()
             return jsonify({
                 'service': 'The Coffee Bean & Tea Leaf API',
                 'status': 'online',
+                'error': f'Endpoint /{clean_path} not found',
                 'endpoints': {
                     'health': '/api/health',
                     'products': '/api/products',
@@ -166,19 +202,7 @@ def create_app(config_class=Config):
                     'banners': '/api/banners',
                     'settings': '/api/settings'
                 }
-            }), 200
-    else:
-        @app.route('/', defaults={'path': ''})
-        @app.route('/<path:path>')
-        def api_catchall(path):
-            return jsonify({
-                'service': 'The Coffee Bean & Tea Leaf API',
-                'status': 'online',
-                'received_path': path,
-                'request_path': request.path,
-                'headers': {k: v for k, v in request.headers.items() if 'auth' not in k.lower() and 'cookie' not in k.lower()},
-                'args': dict(request.args)
-            }), 200
+            }), 404
 
     # Global error handlers
     @app.errorhandler(500)
