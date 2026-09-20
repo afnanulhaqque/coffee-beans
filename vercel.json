@@ -16,7 +16,7 @@
       "destination": "/api/index.py?__path__=uploads/$1"
     },
     {
-      "source": "/(.*)",
+      "source": "/((?!api|uploads).*)",
       "destination": "/index.html"
     }
   ]
