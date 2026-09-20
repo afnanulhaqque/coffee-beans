@@ -2,20 +2,7 @@
   "framework": "vite",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
-  "functions": {
-    "api/index.py": {
-      "includeFiles": "{api/**,backend/**,coffee_store.db}"
-    }
-  },
   "rewrites": [
-    {
-      "source": "/api/hello",
-      "destination": "/api/hello.py"
-    },
-    {
-      "source": "/api/test",
-      "destination": "/api/test.py"
-    },
     {
       "source": "/api/(.*)",
       "destination": "/api/index.py"
