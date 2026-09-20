@@ -1,5 +1,4 @@
-from datetime import datetime, time
-import pytz
+from datetime import datetime, time, timezone, timedelta
 from app.extensions import db
 
 class Store(db.Model):
@@ -53,8 +52,9 @@ class Store(db.Model):
         Calculates whether store is currently Open or Closed based on Pakistan timezone (Asia/Karachi)
         """
         try:
-            karachi_tz = pytz.timezone('Asia/Karachi')
-            now = datetime.now(karachi_tz)
+            # Pakistan Standard Time (Asia/Karachi) is UTC+5
+            pkt_tz = timezone(timedelta(hours=5))
+            now = datetime.now(pkt_tz)
             day_name = now.strftime('%A')  # e.g. Monday
             current_time = now.time()
 
