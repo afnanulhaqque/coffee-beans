@@ -14,7 +14,7 @@
     },
     {
       "source": "/(.*)",
-      "destination": "/api/index.py?__path__=$1"
+      "destination": "/index.html"
     }
   ]
 }
