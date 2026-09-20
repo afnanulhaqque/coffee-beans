@@ -9,6 +9,10 @@
   },
   "rewrites": [
     {
+      "source": "/api/hello",
+      "destination": "/api/hello.py"
+    },
+    {
       "source": "/api/test",
       "destination": "/api/test.py"
     },
