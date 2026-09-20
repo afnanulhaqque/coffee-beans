@@ -1,11 +1,8 @@
 {
-  "framework": "vite",
-  "buildCommand": "npm run build",
-  "outputDirectory": "dist",
   "rewrites": [
     {
       "source": "/api",
-      "destination": "/api/index.py?__path__="
+      "destination": "/api/index.py?__path__=api"
     },
     {
       "source": "/api/(.*)",
@@ -16,8 +13,8 @@
       "destination": "/api/index.py?__path__=uploads/$1"
     },
     {
-      "source": "/((?!api|uploads).*)",
-      "destination": "/index.html"
+      "source": "/(.*)",
+      "destination": "/api/index.py?__path__=$1"
     }
   ]
 }

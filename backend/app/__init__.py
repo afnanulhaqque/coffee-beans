@@ -163,46 +163,27 @@ def create_app(config_class=Config):
             return send_from_directory(assets_dir, filename)
         return jsonify({'error': 'Asset not found'}), 404
 
-    # Serve React Frontend SPA only in non-serverless local environments
-    if not Config.IS_SERVERLESS:
-        @app.route('/', defaults={'path': ''})
-        @app.route('/<path:path>')
-        def serve_spa(path):
-            if path.startswith('api') or path.startswith('uploads'):
-                return jsonify({'error': 'The requested resource was not found'}), 404
-
-            # Check if direct static file exists (e.g. vite.svg, favicon.ico, logo.png)
-            target_file = os.path.join(dist_dir, path)
-            if path and os.path.exists(target_file) and not os.path.isdir(target_file):
-                return send_from_directory(dist_dir, path)
-
-            # High-speed pre-compiled Jinja2 template rendering
-            index_file = os.path.join(dist_dir, 'index.html')
-            if os.path.exists(index_file):
-                return render_template('index.html')
-
+    # Serve React Frontend SPA and static files
+    @app.route('/', defaults={'path': ''})
+    @app.route('/<path:path>')
+    def serve_spa(path):
+        clean_path = path.strip('/')
+        if clean_path == 'api' or clean_path == 'api/':
             return api_root()
-    else:
-        @app.route('/', defaults={'path': ''})
-        @app.route('/<path:path>')
-        def api_catchall(path):
-            clean_path = path.strip('/')
-            if not clean_path or clean_path == 'api':
-                return api_root()
-            return jsonify({
-                'service': 'The Coffee Bean & Tea Leaf API',
-                'status': 'online',
-                'error': f'Endpoint /{clean_path} not found',
-                'endpoints': {
-                    'health': '/api/health',
-                    'products': '/api/products',
-                    'categories': '/api/categories',
-                    'stores': '/api/stores',
-                    'cafe_menu': '/api/cafe-menu',
-                    'banners': '/api/banners',
-                    'settings': '/api/settings'
-                }
-            }), 404
+        if path.startswith('api/') or path.startswith('uploads/'):
+            return jsonify({'error': f'The requested resource /{clean_path} was not found'}), 404
+
+        # Check if direct static file exists in dist (e.g. favicon.svg, logo.png, products/...)
+        target_file = os.path.join(dist_dir, path)
+        if path and os.path.exists(target_file) and not os.path.isdir(target_file):
+            return send_from_directory(dist_dir, path)
+
+        # High-speed pre-compiled Jinja2 template rendering for React SPA shell
+        index_file = os.path.join(dist_dir, 'index.html')
+        if os.path.exists(index_file):
+            return render_template('index.html')
+
+        return api_root()
 
     # Global error handlers
     @app.errorhandler(500)
