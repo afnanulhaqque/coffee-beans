@@ -12,14 +12,7 @@ class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY', 'coffee-secret-key-super-secure-change-in-prod')
     JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY', 'jwt-super-secret-coffee-bean-key-2026')
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(days=7)
-    
-    # Supabase Server Credentials
-    SUPABASE_URL = os.environ.get('SUPABASE_URL', '')
-    SUPABASE_PUBLISHABLE_KEY = os.environ.get('SUPABASE_PUBLISHABLE_KEY', '')
-    SUPABASE_SECRET_KEY = os.environ.get('SUPABASE_SECRET_KEY', '')
-    SUPABASE_JWKS_URL = os.environ.get('SUPABASE_JWKS_URL', '')
 
-    
     # Serverless runtime detection (Vercel, AWS Lambda)
     IS_SERVERLESS = bool(
         os.environ.get('VERCEL') or
@@ -30,16 +23,10 @@ class Config:
         os.path.exists('/var/task')
     )
 
-    # Database URL configuration
-    _db_url = os.environ.get('DATABASE_URL')
-    if _db_url and _db_url.startswith("postgres://"):
-        _db_url = _db_url.replace("postgres://", "postgresql://", 1)
-
-    if _db_url:
-        SQLALCHEMY_DATABASE_URI = _db_url
-    elif IS_SERVERLESS:
+    # Pure SQLite Database Configuration
+    if IS_SERVERLESS:
         tmp_db = os.path.join('/tmp', 'coffee_store.db')
-        
+
         # Check all potential bundled database locations on Vercel / Lambda
         candidate_dbs = [
             os.path.join(BASE_DIR, 'coffee_store.db'),
@@ -51,7 +38,7 @@ class Config:
             os.path.join('/var', 'task', 'coffee_store.db'),
             os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'api', 'coffee_store.db')
         ]
-        
+
         src_db = None
         for cand in candidate_dbs:
             try:
@@ -76,7 +63,7 @@ class Config:
         SQLALCHEMY_DATABASE_URI = f"sqlite:///{local_db_path}"
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    
+
     # Upload configurations
     if IS_SERVERLESS:
         UPLOAD_FOLDER = os.path.join('/tmp', 'uploads')
@@ -85,5 +72,5 @@ class Config:
 
     MAX_CONTENT_LENGTH = 10 * 1024 * 1024  # 10MB max image upload
     ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'webp', 'gif', 'svg'}
-    
+
     CORS_ORIGINS = os.environ.get('CORS_ORIGINS', '*').split(',')

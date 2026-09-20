@@ -32,12 +32,3 @@ def seed_data(session=None):
 
     session.commit()
 
-    # 3. Seed Catalog & Stores if completely empty (e.g. fresh cloud DB or fresh Vercel container)
-    try:
-        if not Product.query.first() or not Store.query.first():
-            from scripts.seed_all_modules import seed_all
-            seed_all()
-    except Exception as e:
-        # Avoid crashing app startup if script isn't found
-        pass
-
