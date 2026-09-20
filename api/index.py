@@ -7,6 +7,7 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 # Ensure current directory (api/) and candidate backend locations are in sys.path
 candidate_paths = [
     current_dir,
+    os.path.abspath(os.path.join(current_dir, '..')),
     os.path.join(current_dir, '..', 'backend'),
     os.path.join(current_dir, 'backend'),
     os.path.join('/var', 'task', 'api'),
