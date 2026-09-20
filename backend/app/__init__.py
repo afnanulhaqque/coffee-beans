@@ -103,8 +103,20 @@ def create_app(config_class=Config):
     app.register_blueprint(cafe_bp)
     app.register_blueprint(settings_bp)
 
-    # Health check endpoint
+    # Also register with alternative prefixes in case Vercel rewrites strip /api
+    app.register_blueprint(auth_bp, name='auth_alt', url_prefix='/auth')
+    app.register_blueprint(products_bp, name='products_alt', url_prefix='')
+    app.register_blueprint(categories_bp, name='categories_alt', url_prefix='/categories')
+    app.register_blueprint(orders_bp, name='orders_alt', url_prefix='/orders')
+    app.register_blueprint(admin_bp, name='admin_alt', url_prefix='/admin')
+    app.register_blueprint(stores_bp, name='stores_alt', url_prefix='/stores')
+    app.register_blueprint(banners_bp, name='banners_alt', url_prefix='/banners')
+    app.register_blueprint(cafe_bp, name='cafe_alt', url_prefix='/cafe-menu')
+    app.register_blueprint(settings_bp, name='settings_alt', url_prefix='/settings')
+
+    # Health check endpoint (matches both /api/health and /health)
     @app.route('/api/health')
+    @app.route('/health')
     def health_check():
         return jsonify({'status': 'ok', 'service': 'Coffee Bean & Tea API', 'version': '1.0.0'}), 200
 
@@ -124,36 +136,55 @@ def create_app(config_class=Config):
             return send_from_directory(assets_dir, filename)
         return jsonify({'error': 'Asset not found'}), 404
 
-    # Serve React Frontend SPA using fast cached Jinja2 template rendering
-    @app.route('/', defaults={'path': ''})
-    @app.route('/<path:path>')
-    def serve_spa(path):
-        if path.startswith('api') or path.startswith('uploads'):
-            return jsonify({'error': 'The requested resource was not found'}), 404
+    # Serve React Frontend SPA only in non-serverless local environments
+    if not Config.IS_SERVERLESS:
+        @app.route('/', defaults={'path': ''})
+        @app.route('/<path:path>')
+        def serve_spa(path):
+            if path.startswith('api') or path.startswith('uploads'):
+                return jsonify({'error': 'The requested resource was not found'}), 404
 
-        # Check if direct static file exists (e.g. vite.svg, favicon.ico, logo.png)
-        target_file = os.path.join(dist_dir, path)
-        if path and os.path.exists(target_file) and not os.path.isdir(target_file):
-            return send_from_directory(dist_dir, path)
+            # Check if direct static file exists (e.g. vite.svg, favicon.ico, logo.png)
+            target_file = os.path.join(dist_dir, path)
+            if path and os.path.exists(target_file) and not os.path.isdir(target_file):
+                return send_from_directory(dist_dir, path)
 
-        # High-speed pre-compiled Jinja2 template rendering
-        index_file = os.path.join(dist_dir, 'index.html')
-        if os.path.exists(index_file):
-            return render_template('index.html')
+            # High-speed pre-compiled Jinja2 template rendering
+            index_file = os.path.join(dist_dir, 'index.html')
+            if os.path.exists(index_file):
+                return render_template('index.html')
 
-        return jsonify({
-            'service': 'The Coffee Bean & Tea Leaf API',
-            'status': 'online',
-            'endpoints': {
-                'health': '/api/health',
-                'products': '/api/products',
-                'categories': '/api/categories',
-                'stores': '/api/stores',
-                'cafe_menu': '/api/cafe-menu',
-                'banners': '/api/banners',
-                'settings': '/api/settings'
-            }
-        }), 200
+            return jsonify({
+                'service': 'The Coffee Bean & Tea Leaf API',
+                'status': 'online',
+                'endpoints': {
+                    'health': '/api/health',
+                    'products': '/api/products',
+                    'categories': '/api/categories',
+                    'stores': '/api/stores',
+                    'cafe_menu': '/api/cafe-menu',
+                    'banners': '/api/banners',
+                    'settings': '/api/settings'
+                }
+            }), 200
+    else:
+        @app.route('/', defaults={'path': ''})
+        @app.route('/<path:path>')
+        def api_catchall(path):
+            return jsonify({
+                'service': 'The Coffee Bean & Tea Leaf API',
+                'status': 'online',
+                'received_path': path,
+                'endpoints': {
+                    'health': '/api/health',
+                    'products': '/api/products',
+                    'categories': '/api/categories',
+                    'stores': '/api/stores',
+                    'cafe_menu': '/api/cafe-menu',
+                    'banners': '/api/banners',
+                    'settings': '/api/settings'
+                }
+            }), 200
 
     # Global error handlers
     @app.errorhandler(500)
