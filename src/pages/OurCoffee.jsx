@@ -54,7 +54,7 @@ export default function OurCoffee() {
               From bright, floral high-grown light roasts to deep caramel, smoky dark roasts, each coffee is profiled to unlock its peak aroma and distinct origin nuances.
             </p>
           </div>
-          <div className="md:col-span-7 aspect-16/9 bg-[#2A1B17] rounded-md overflow-hidden">
+          <div className="md:col-span-7 aspect-video bg-[#2A1B17] rounded-md overflow-hidden">
             <img
               src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=1000&q=80"
               alt="Flavor Facts Cupping"
@@ -65,7 +65,7 @@ export default function OurCoffee() {
 
         {/* Section 2: THE SOURCE MATTERS */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center border-b border-[#E8DED2] pb-14">
-          <div className="md:col-span-7 md:order-1 aspect-16/9 bg-[#2A1B17] rounded-md overflow-hidden">
+          <div className="md:col-span-7 md:order-1 aspect-video bg-[#2A1B17] rounded-md overflow-hidden">
             <img
               src="https://images.unsplash.com/photo-1447933601403-0c6688de566e?auto=format&fit=crop&w=1000&q=80"
               alt="High Altitude Arabica Cherries"
@@ -98,7 +98,7 @@ export default function OurCoffee() {
               Many coffee companies claim to search the world for the finest coffees, yet very few do. At The Coffee Bean &amp; Tea Leaf®, our Coffee Master goes to the source of our coffee to guarantee it is the highest quality obtainable on earth. Quality has always been our No. 1 priority, and it will never be compromised.
             </p>
           </div>
-          <div className="md:col-span-7 aspect-16/9 bg-[#2A1B17] rounded-md overflow-hidden">
+          <div className="md:col-span-7 aspect-video bg-[#2A1B17] rounded-md overflow-hidden">
             <img
               src="https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=1000&q=80"
               alt="Quality Roasted Coffee"

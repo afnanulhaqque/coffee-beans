@@ -325,10 +325,10 @@ export default function Navbar() {
                       className={`flex items-center gap-1.5 whitespace-nowrap transition-colors relative cursor-pointer ${
                         isNavSolid
                           ? active
-                            ? 'text-[#4B274F] font-bold after:absolute after:bottom-[-2px] after:left-0 after:right-0 after:h-0.5 after:bg-[#4B274F]'
+                            ? 'text-[#4B274F] font-bold after:absolute after:-bottom-0.5 after:left-0 after:right-0 after:h-0.5 after:bg-[#4B274F]'
                             : 'text-[#2A1B17] hover:text-[#4B274F]'
                           : active
-                            ? 'text-white font-bold after:absolute after:bottom-[-2px] after:left-0 after:right-0 after:h-0.5 after:bg-white'
+                            ? 'text-white font-bold after:absolute after:-bottom-0.5 after:left-0 after:right-0 after:h-0.5 after:bg-white'
                             : 'text-[#F5F0E8] hover:text-white'
                       }`}
                       aria-expanded={isOpen}
@@ -370,10 +370,10 @@ export default function Navbar() {
                   className={`py-2 relative whitespace-nowrap transition-colors ${
                     isNavSolid
                       ? active
-                        ? 'text-[#4B274F] font-bold after:absolute after:bottom-[-2px] after:left-0 after:right-0 after:h-0.5 after:bg-[#4B274F]'
+                        ? 'text-[#4B274F] font-bold after:absolute after:-bottom-0.5 after:left-0 after:right-0 after:h-0.5 after:bg-[#4B274F]'
                         : 'text-[#2A1B17] hover:text-[#4B274F]'
                       : active
-                        ? 'text-white font-bold after:absolute after:bottom-[-2px] after:left-0 after:right-0 after:h-0.5 after:bg-white'
+                        ? 'text-white font-bold after:absolute after:-bottom-0.5 after:left-0 after:right-0 after:h-0.5 after:bg-white'
                         : 'text-[#F5F0E8] hover:text-white'
                   }`}
                 >

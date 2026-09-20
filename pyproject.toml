@@ -18,3 +18,8 @@ requires-python = ">=3.10"
 
 [tool.vercel]
 entrypoint = "api.index:app"
+
+[tool.pyright]
+extraPaths = ["backend"]
+include = ["backend", "api"]
+exclude = ["node_modules", "dist", "src"]

@@ -175,7 +175,7 @@ export default function Banners() {
               className="bg-white rounded-md border border-[#E8DED2] p-5 shadow-xs flex flex-col justify-between space-y-4"
             >
               <div className="space-y-3">
-                <div className="aspect-16/9 bg-[#F5F0E8] rounded-md overflow-hidden border border-[#E8DED2] relative">
+                <div className="aspect-video bg-[#F5F0E8] rounded-md overflow-hidden border border-[#E8DED2] relative">
                   <img
                     src={b.image}
                     alt={b.title}

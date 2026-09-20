@@ -173,7 +173,7 @@ export default function Stores() {
               className="bg-white rounded-md border border-[#E8DED2] p-5 shadow-xs flex flex-col justify-between space-y-4"
             >
               <div className="space-y-3">
-                <div className="aspect-16/9 bg-[#F5F0E8] rounded-md overflow-hidden border border-[#E8DED2]">
+                <div className="aspect-video bg-[#F5F0E8] rounded-md overflow-hidden border border-[#E8DED2]">
                   <img
                     src={s.image || 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=600&q=80'}
                     alt={s.name}

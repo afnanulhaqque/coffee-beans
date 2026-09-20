@@ -459,7 +459,7 @@ export default function Stores() {
               <p className="text-xs text-[#6B4A3A]">Try selecting a different city or clearing your search query.</p>
             </div>
           ) : (
-            <div className="space-y-4 max-h-[700px] overflow-y-auto pr-1">
+            <div className="space-y-4 max-h-175 overflow-y-auto pr-1">
               {stores.map((store) => {
                 const isSelected = selectedStore && selectedStore.id === store.id;
                 const status = store.current_status || {};
@@ -595,7 +595,7 @@ export default function Stores() {
           <div className="bg-white border border-[#E8DED2] rounded-md overflow-hidden shadow-md">
             <div 
               ref={mapRef} 
-              className="w-full h-[500px] sm:h-[650px] z-10"
+              className="w-full h-125 sm:h-162.5 z-10"
             />
           </div>
         </div>

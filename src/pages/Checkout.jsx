@@ -431,7 +431,7 @@ export default function Checkout() {
             <div className="space-y-3">
               {orderType === 'delivery' ? (
                 <>
-                  <label className="p-4 border-2 border-[#4B274F] bg-[#F5F0E8] rounded-md flex items-start gap-3 cursor-pointer block">
+                  <label className="p-4 border-2 border-[#4B274F] bg-[#F5F0E8] rounded-md flex items-start gap-3 cursor-pointer">
                     <input
                       type="radio"
                       name="payment_method"
@@ -448,7 +448,7 @@ export default function Checkout() {
                     </div>
                   </label>
 
-                  <label className="p-4 border border-[#E8DED2] bg-white rounded-md flex items-start gap-3 cursor-pointer block hover:border-[#4B274F]/50">
+                  <label className="p-4 border border-[#E8DED2] bg-white rounded-md flex items-start gap-3 cursor-pointer hover:border-[#4B274F]/50">
                     <input
                       type="radio"
                       name="payment_method"
@@ -467,7 +467,7 @@ export default function Checkout() {
                 </>
               ) : (
                 <>
-                  <label className="p-4 border-2 border-[#4B274F] bg-[#F5F0E8] rounded-md flex items-start gap-3 cursor-pointer block">
+                  <label className="p-4 border-2 border-[#4B274F] bg-[#F5F0E8] rounded-md flex items-start gap-3 cursor-pointer">
                     <input
                       type="radio"
                       name="payment_method"
@@ -484,7 +484,7 @@ export default function Checkout() {
                     </div>
                   </label>
 
-                  <label className="p-4 border border-[#E8DED2] bg-white rounded-md flex items-start gap-3 cursor-pointer block hover:border-[#4B274F]/50">
+                  <label className="p-4 border border-[#E8DED2] bg-white rounded-md flex items-start gap-3 cursor-pointer hover:border-[#4B274F]/50">
                     <input
                       type="radio"
                       name="payment_method"

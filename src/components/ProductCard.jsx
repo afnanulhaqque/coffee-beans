@@ -29,7 +29,7 @@ export default function ProductCard({ product }) {
     <div className="group relative flex flex-col bg-white border border-[#E8DED2] hover:border-[#4B274F]/50 transition-all duration-300 rounded-md overflow-hidden font-body shadow-xs hover:shadow-md">
       
       {/* Product Image Container with Object Contain */}
-      <Link to={productUrl} className="relative aspect-square overflow-hidden bg-[#F5F0E8] flex items-center justify-center p-4 block">
+      <Link to={productUrl} className="relative aspect-square overflow-hidden bg-[#F5F0E8] flex items-center justify-center p-4">
         <img
           src={product.image || '/placeholder-coffee.jpg'}
           alt={product.name}

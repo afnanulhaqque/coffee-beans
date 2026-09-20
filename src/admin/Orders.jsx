@@ -186,7 +186,7 @@ export default function Orders() {
                         {o.order_type || 'delivery'}
                       </span>
                     </td>
-                    <td className="py-3 px-4 font-medium text-[#2A1B17] max-w-[200px] truncate">
+                    <td className="py-3 px-4 font-medium text-[#2A1B17] max-w-50 truncate">
                       {o.order_type === 'pickup' ? o.store_name || 'Store Pickup' : `${o.city || ''} ${o.delivery_address || ''}`}
                     </td>
                     <td className="py-3 px-4 font-bold text-[#4B274F] whitespace-nowrap">

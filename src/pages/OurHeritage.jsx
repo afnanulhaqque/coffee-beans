@@ -68,7 +68,7 @@ export default function OurHeritage() {
           <div key={idx} className="relative pl-8 sm:pl-12 group">
             
             {/* Timeline Marker Dot in Bossanova */}
-            <div className="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-[#E8DED2] border-2 border-[#4B274F] group-hover:bg-[#4B274F] transition-colors" />
+            <div className="absolute -left-2.25 top-1.5 w-4 h-4 rounded-full bg-[#E8DED2] border-2 border-[#4B274F] group-hover:bg-[#4B274F] transition-colors" />
 
             {/* Year Tag on Left (Desktop) */}
             <div className="sm:absolute sm:-left-36 md:-left-44 top-0 font-display text-3xl sm:text-4xl text-[#4B274F] group-hover:text-[#351B38] transition-colors">
@@ -80,7 +80,7 @@ export default function OurHeritage() {
               <p className="text-sm sm:text-base text-[#2A1B17] leading-relaxed font-normal">
                 {item.description}
               </p>
-              <div className="aspect-16/9 bg-[#2A1B17] rounded-md overflow-hidden">
+              <div className="aspect-video bg-[#2A1B17] rounded-md overflow-hidden">
                 <img
                   src={item.image}
                   alt={`${item.year} Heritage`}

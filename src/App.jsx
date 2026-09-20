@@ -74,7 +74,7 @@ function CustomerLayout() {
   return (
     <div className="min-h-screen flex flex-col bg-[#F5F0E8] text-[#2A1B17]">
       <Navbar />
-      <main className="flex-grow">
+      <main className="grow">
         <Outlet />
       </main>
       <Footer />
