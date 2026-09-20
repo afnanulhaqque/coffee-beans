@@ -7,7 +7,7 @@
     "dev": "vite",
     "dev:backend": "python backend/run.py",
     "seed": "python backend/seed.py",
-    "build": "vite build",
+    "build": "vite build && node -e \"fs.cpSync('dist', 'public', {recursive: true})\"",
     "lint": "oxlint",
     "preview": "vite preview"
   },
