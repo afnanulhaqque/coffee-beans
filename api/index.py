@@ -21,9 +21,28 @@ for p in candidate_paths:
     if os.path.exists(p) and p not in sys.path:
         sys.path.insert(0, p)
 
+import urllib.parse
+
+class VercelPathMiddleware:
+    """Reconstruct PATH_INFO from __path__ query parameter forwarded by Vercel rewrites."""
+    def __init__(self, wsgi_app):
+        self.wsgi_app = wsgi_app
+
+    def __call__(self, environ, start_response):
+        qs = environ.get('QUERY_STRING', '')
+        if '__path__=' in qs:
+            params = urllib.parse.parse_qs(qs, keep_blank_values=True)
+            if '__path__' in params and params['__path__']:
+                p = params['__path__'][0].lstrip('/')
+                environ['PATH_INFO'] = f'/api/{p}' if not p.startswith('api/') else f'/{p}'
+                del params['__path__']
+                environ['QUERY_STRING'] = urllib.parse.urlencode(params, doseq=True)
+        return self.wsgi_app(environ, start_response)
+
 try:
     from app import create_app
     app = create_app()
+    app.wsgi_app = VercelPathMiddleware(app.wsgi_app)
 except Exception as e:
     from flask import Flask, jsonify
     err_tb = traceback.format_exc()
