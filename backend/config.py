@@ -1,4 +1,5 @@
 import os
+import sys
 import shutil
 from datetime import timedelta
 from dotenv import load_dotenv
@@ -36,7 +37,11 @@ class Config:
             os.path.join('/var', 'task', 'backend', 'coffee_store.db'),
             os.path.join('/var', 'task', 'api', 'coffee_store.db'),
             os.path.join('/var', 'task', 'coffee_store.db'),
-            os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'api', 'coffee_store.db')
+            os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'api', 'coffee_store.db'),
+            os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'coffee_store.db'),
+            os.path.abspath('coffee_store.db'),
+            os.path.abspath(os.path.join('backend', 'coffee_store.db')),
+            os.path.abspath(os.path.join('api', 'coffee_store.db')),
         ]
 
         src_db = None
@@ -48,13 +53,33 @@ class Config:
             except Exception:
                 continue
 
+        # Recursive search if not found in standard paths
+        if not src_db:
+            search_dirs = ['/var/task', ROOT_DIR, BASE_DIR, '.']
+            for s_dir in search_dirs:
+                if os.path.exists(s_dir):
+                    for root, _, files in os.walk(s_dir):
+                        if 'coffee_store.db' in files:
+                            cand = os.path.join(root, 'coffee_store.db')
+                            try:
+                                if os.path.getsize(cand) > 1000:
+                                    src_db = cand
+                                    break
+                            except Exception:
+                                pass
+                if src_db:
+                    break
+
         if src_db:
             try:
                 # Copy to /tmp if not exists or if size is smaller
                 if not os.path.exists(tmp_db) or os.path.getsize(tmp_db) < 1000:
                     shutil.copy2(src_db, tmp_db)
+                    print(f"[Serverless DB] Successfully copied {src_db} ({os.path.getsize(src_db)} bytes) to {tmp_db}")
             except Exception as e:
-                print(f"Error copying DB to /tmp: {e}")
+                print(f"[Serverless DB Error] Copy failed: {e}")
+        else:
+            print("[Serverless DB Warning] No pre-seeded coffee_store.db found in bundle search paths.")
 
         SQLALCHEMY_DATABASE_URI = f"sqlite:///{tmp_db}"
     else:
@@ -63,6 +88,12 @@ class Config:
         SQLALCHEMY_DATABASE_URI = f"sqlite:///{local_db_path}"
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        'connect_args': {
+            'check_same_thread': False,
+            'timeout': 30
+        }
+    }
 
     # Upload configurations
     if IS_SERVERLESS:

@@ -4,7 +4,11 @@
   "outputDirectory": "dist",
   "functions": {
     "api/index.py": {
-      "includeFiles": "{backend/**,api/**}"
+      "includeFiles": [
+        "backend/**",
+        "api/**",
+        "coffee_store.db"
+      ]
     }
   },
   "rewrites": [
